@@ -28,6 +28,7 @@ sconf>=0.2.3
 # YOLO ----------------------------------------
 opencv-python
 ultralytics
+comet_ml
 
 # Plotting ------------------------------------
 pandas>=1.1.4
