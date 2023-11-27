@@ -1,0 +1,57 @@
+# Base ----------------------------------------
+matplotlib>=3.3.0
+numpy>=1.22.2 # pinned by Snyk to avoid a vulnerability
+opencv-python>=4.6.0
+pillow>=7.1.2
+pyyaml>=5.3.1
+requests>=2.23.0
+scipy>=1.4.1
+torch>=1.8.0
+torchvision>=0.9.0
+tqdm>=4.64.0
+scikit-learn
+ipdb
+pytest
+pylint
+jupyterlab
+
+# Donut ---------------------------------------
+timm
+transformers>=4.11.3
+datasets[vision]
+pytorch-lightning>=1.6.4
+nltk
+sentencepiece
+zss
+sconf>=0.2.3
+
+# Plotting ------------------------------------
+pandas>=1.1.4
+seaborn>=0.11.0
+
+# Extras --------------------------------------
+psutil  # system utilization
+py-cpuinfo  # display CPU info
+thop>=0.1.1  # FLOPs computation
+
+# Logging -------------------------------------
+tensorboard>=2.13.0
+# dvclive>=2.12.0
+# clearml
+# comet
+
+# Export --------------------------------------
+# coremltools>=7.0  # CoreML export
+# onnx>=1.12.0  # ONNX export
+# onnxsim>=0.4.1  # ONNX simplifier
+# nvidia-pyindex  # TensorRT export
+# nvidia-tensorrt  # TensorRT export
+# tensorflow>=2.4.1,<=2.13.1  # TF exports (-cpu, -aarch64, -macos)
+# tflite-support
+# tensorflowjs>=3.9.0  # TF.js export
+# openvino-dev>=2023.0  # OpenVINO export
+
+# ipython  # interactive notebook
+# albumentations>=1.0.3  # training augmentations
+# pycocotools>=2.0.6  # COCO mAP
+# roboflow
