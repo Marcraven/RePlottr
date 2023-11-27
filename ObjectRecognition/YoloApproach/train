@@ -1,1 +1,0 @@
-python train.py --img-size 640 --batch-size 16 --epochs 50 --data TextRecognition/dataset/train --cfg ObjectRecognition/YoloApproach/.pre-commit-config.yaml
