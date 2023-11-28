@@ -14,3 +14,6 @@ dataset_donut:
 
 train_donut:
 	python TextRecognition/DonutApproach/train.py --config TextRecognition/DonutApproach/config/train_cord.yaml --exp_version "test_experiment"
+
+dataset_yolo:
+	python CreateData_Yolo.py
