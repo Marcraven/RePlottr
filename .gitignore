@@ -1,5 +1,6 @@
 # Current result and data folders
 raw_data/
+notebooks/
 TextRecognition/DonutApproach/result/
 TextRecognition/DonutApproach/dataset/
 TextRecognition/DonutApproach/donut/__pycache__/
