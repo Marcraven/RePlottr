@@ -7,7 +7,7 @@ import sys
 
 
 ### Define constants
-train_size = 8
+train_size = 800
 val_split = 0.125
 test_split = 0.125
 
@@ -413,6 +413,9 @@ def create_data(start, end, folder):
             x_data = np.round(np.random.rand(points_serie) * xlim, decimals=1)
             y_data = np.round(np.random.rand(points_serie) * ylim, decimals=1)
             marker = random.choice(markers)
+            series.append(
+                {"name": name, "marker": marker, "x": list(x_data), "y": list(y_data)}
+            )
 
             # Create a scatter plot for the current series
             ax.scatter(
@@ -421,10 +424,6 @@ def create_data(start, end, folder):
                 label=name,
                 marker=marker,
                 color=random.choice(colors),
-            )
-
-            series.append(
-                {"name": name, "marker": marker, "x": list(x_data), "y": list(y_data)}
             )
 
         # Add legend
@@ -562,6 +561,11 @@ def create_data(start, end, folder):
 
         # Save Yolo target in txt format that is read by Yolo model
         np.savetxt(fname + ".txt", yolo_target, delimiter=" ", fmt="%1.4f")
+
+        # Clean figure, axes and close figure
+        plt.clf()
+        plt.cla()
+        plt.close()
 
 
 if __name__ == "__main__":
