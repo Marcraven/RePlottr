@@ -59,7 +59,7 @@ class DonutModelPLModule(pl.LightningModule):
         loss = self.model(image_tensors, decoder_input_ids, decoder_labels)[0]
         self.log_dict({"train_loss": loss}, sync_dist=True)
         if not self.pytorch_lightning_version_is_1:
-            self.log('loss', loss, prog_bar=True)
+            self.log("loss", loss, prog_bar=True)
         return loss
 
     def on_validation_epoch_start(self) -> None:
@@ -70,7 +70,10 @@ class DonutModelPLModule(pl.LightningModule):
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         image_tensors, decoder_input_ids, prompt_end_idxs, answers = batch
         decoder_prompts = pad_sequence(
-            [input_id[: end_idx + 1] for input_id, end_idx in zip(decoder_input_ids, prompt_end_idxs)],
+            [
+                input_id[: end_idx + 1]
+                for input_id, end_idx in zip(decoder_input_ids, prompt_end_idxs)
+            ],
             batch_first=True,
         )
 
@@ -108,26 +111,41 @@ class DonutModelPLModule(pl.LightningModule):
                 total_metric[i] += np.sum(scores)
             val_metric[i] = total_metric[i] / cnt[i]
             val_metric_name = f"val_metric_{i}th_dataset"
-            self.log_dict({val_metric_name: val_metric[i]}, sync_dist=True)
-        self.log_dict({"val_metric": np.sum(total_metric) / np.sum(cnt)}, sync_dist=True)
+            # Convert val_metric to PyTorch tensor of type float32
+            val_metric_tensor = torch.tensor(val_metric[i], dtype=torch.float32)
+            self.log_dict({val_metric_name: val_metric_tensor}, sync_dist=True)
+
+        # Convert overall val_metric to PyTorch tensor of type float32
+        overall_val_metric = np.sum(total_metric) / np.sum(cnt)
+        overall_val_metric_tensor = torch.tensor(
+            overall_val_metric, dtype=torch.float32
+        )
+        self.log_dict({"val_metric": overall_val_metric_tensor}, sync_dist=True)
 
     def configure_optimizers(self):
-
         max_iter = None
 
         if int(self.config.get("max_epochs", -1)) > 0:
-            assert len(self.config.train_batch_sizes) == 1, "Set max_epochs only if the number of datasets is 1"
-            max_iter = (self.config.max_epochs * self.config.num_training_samples_per_epoch) / (
-                self.config.train_batch_sizes[0] * torch.cuda.device_count() * self.config.get("num_nodes", 1)
-            )
+            assert (
+                len(self.config.train_batch_sizes) == 1
+            ), "Set max_epochs only if the number of datasets is 1"
+            max_iter = (
+                self.config.max_epochs * self.config.num_training_samples_per_epoch
+            ) / (self.config.train_batch_sizes[0] * 1 * self.config.get("num_nodes", 1))
 
         if int(self.config.get("max_steps", -1)) > 0:
-            max_iter = min(self.config.max_steps, max_iter) if max_iter is not None else self.config.max_steps
+            max_iter = (
+                min(self.config.max_steps, max_iter)
+                if max_iter is not None
+                else self.config.max_steps
+            )
 
         assert max_iter is not None
         optimizer = torch.optim.Adam(self.parameters(), lr=self.config.lr)
         scheduler = {
-            "scheduler": self.cosine_scheduler(optimizer, max_iter, self.config.warmup_steps),
+            "scheduler": self.cosine_scheduler(
+                optimizer, max_iter, self.config.warmup_steps
+            ),
             "name": "learning_rate",
             "interval": "step",
         }
@@ -146,7 +164,11 @@ class DonutModelPLModule(pl.LightningModule):
 
     @rank_zero_only
     def on_save_checkpoint(self, checkpoint):
-        save_path = Path(self.config.result_path) / self.config.exp_name / self.config.exp_version
+        save_path = (
+            Path(self.config.result_path)
+            / self.config.exp_name
+            / self.config.exp_version
+        )
         self.model.save_pretrained(save_path)
         self.model.decoder.tokenizer.save_pretrained(save_path)
 
@@ -163,36 +185,45 @@ class DonutDataPLModule(pl.LightningDataModule):
         self.g.manual_seed(self.config.seed)
 
     def train_dataloader(self):
-        loaders = list()
-        for train_dataset, batch_size in zip(self.train_datasets, self.train_batch_sizes):
-            loaders.append(
-                DataLoader(
-                    train_dataset,
-                    batch_size=batch_size,
-                    num_workers=self.config.num_workers,
-                    pin_memory=True,
-                    worker_init_fn=self.seed_worker,
-                    generator=self.g,
-                    shuffle=True,
+        loaders = []
+        for train_dataset, batch_size in zip(
+            self.train_datasets, self.train_batch_sizes
+        ):
+            dataloader_args = {
+                "dataset": train_dataset,
+                "batch_size": batch_size,
+                "pin_memory": True,
+                "worker_init_fn": self.seed_worker,
+                "generator": self.g,
+                "shuffle": True,
+            }
+            if self.config.num_workers > 0:
+                dataloader_args["num_workers"] = self.config.num_workers
+                dataloader_args["multiprocessing_context"] = (
+                    "fork" if torch.backends.mps.is_available() else None
                 )
-            )
+            loaders.append(DataLoader(**dataloader_args))
         return loaders
 
     def val_dataloader(self):
-        loaders = list()
+        loaders = []
         for val_dataset, batch_size in zip(self.val_datasets, self.val_batch_sizes):
-            loaders.append(
-                DataLoader(
-                    val_dataset,
-                    batch_size=batch_size,
-                    pin_memory=True,
-                    shuffle=False,
+            dataloader_args = {
+                "dataset": val_dataset,
+                "batch_size": batch_size,
+                "pin_memory": True,
+                "shuffle": False,
+            }
+            if self.config.num_workers > 0:
+                dataloader_args["num_workers"] = self.config.num_workers
+                dataloader_args["multiprocessing_context"] = (
+                    "fork" if torch.backends.mps.is_available() else None
                 )
-            )
+            loaders.append(DataLoader(**dataloader_args))
         return loaders
 
     @staticmethod
     def seed_worker(wordker_id):
-        worker_seed = torch.initial_seed() % 2 ** 32
+        worker_seed = torch.initial_seed() % 2**32
         np.random.seed(worker_seed)
         random.seed(worker_seed)
