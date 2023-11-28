@@ -4,15 +4,13 @@ from matplotlib.transforms import Bbox
 import random
 import json
 import os
-from concurrent.futures import ProcessPoolExecutor
 import sys
 
 
-### Here we define the constants
+##### Define constants #####
 train_size = 100
 val_split = 0.125
 test_split = 0.125
-
 
 labels = [
     "Length [nm]",
@@ -64,6 +62,7 @@ labels = [
     "Angle [rad]",
     "Angle [deg]",
 ]
+
 adjectives = [
     "Happy",
     "Sad",
@@ -166,6 +165,7 @@ adjectives = [
     "Courageous",
     "Grounded",
 ]
+
 nouns = [
     "Sun",
     "Moon",
@@ -385,11 +385,16 @@ colors = [
 ]
 
 
-### Create data function
+##### Define data creation function #####
 def create_data(start, end, folder):
-    """This generates a number of Train, Evaluate or Test data on a specific folder"""
+    """This generates a number of Train, Evaluate or Test data on a specific folder
+    start: number of first scatterplot picture
+    end: number of last scatterplot picture
+    folder: location for saving final pictures
+    """
 
     metadata_list = []
+
     for j in range(start, end):
         # Generate random data
         xlim = np.random.randint(low=0, high=1000, size=1)
@@ -400,39 +405,47 @@ def create_data(start, end, folder):
         # Create an empty list to store series data
         series = []
 
-        plt.figure(figsize=(3.2, 2.4), dpi=100)
         # Generate and plot random data for each series
+        fig, ax = plt.subplots(figsize=(3.2, 2.4), dpi=100)
+
         for i in range(num_series + 1):
+            # Create series
             name = random.choice(legends)
             points_serie = max(num_points // num_series + np.random.randint(-2, 2), 1)
             x_values = np.round(np.random.rand(points_serie) * xlim, decimals=1)
             y_values = np.round(np.random.rand(points_serie) * ylim, decimals=1)
+            marker = random.choice(markers)
             series.append(name)  # 'x': list(x_values), 'y': list(y_values)})
 
             # Create a scatter plot for the current series
-            plt.scatter(
+            ax.scatter(
                 x=x_values,
                 y=y_values,
                 label=name,
-                marker=random.choice(markers),
+                marker=marker,
                 color=random.choice(colors),
             )
-        plt.legend(loc="upper right", framealpha=0.3)  # , bbox_to_anchor=(0.6,0.5))
+
+        # Add legend
+        # ax.legend(loc="upper right", framealpha=0.3)  # , bbox_to_anchor=(0.6,0.5))
+
         # Add labels and title
         x_label = random.choice(labels)
         y_label = random.choice(labels)
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
-        plt.title(plot_title)
+        ax.set_title(plot_title)
 
-        x_ticks = plt.xticks()[0].tolist()
-        y_ticks = plt.xticks()[0].tolist()
+        # Derive ticks data
+        x_ticks = ax.get_xticks()
+        y_ticks = ax.get_yticks()
 
-        # file names
+        # Create file names
         fname = folder + str(j).zfill(4)
+
         # Save the plot with smaller margins
-        plt.savefig(
+        fig.savefig(
             fname + ".jpg",
             dpi=100,
             bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
@@ -448,13 +461,17 @@ def create_data(start, end, folder):
             "series": series,
         }
 
+        # Create metadata
         metadata = {
             "file_name": str(j).zfill(4) + ".jpg",
             "ground_truth": '{"gt_parse": ' + json.dumps(ground_truth) + "}",
         }
         metadata_list.append(metadata)
+
+        # Clean figure, axes and close figure
         plt.clf()
         plt.cla()
+        plt.close()
 
     # File path for the JSONL file
     file_path = folder + "/metadata.jsonl"
@@ -466,16 +483,18 @@ def create_data(start, end, folder):
             file.write("\n")  # Add a newline character to separate JSON objects
 
 
+##### If name = main #####
 if __name__ == "__main__":
     plt.ioff()
+
     ### Here we define the size of the dataset and the splits
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
-    dataset = "./TextRecognition/DonutApproach/dataset"  # f'./Dataset_{train_size}_' + str(val_split).replace(".", "") +'_' + str(test_split).replace(".", "")
-    train_dir = dataset + "/train/"
-    val_dir = dataset + "/validation/"
-    test_dir = dataset + "/test/"
+    dataset = "./TextRecognition/DonutApproach/dataset"
+    train_dir = dataset + "/1. train/"
+    val_dir = dataset + "/2. validation/"
+    test_dir = dataset + "/3. test/"
 
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
