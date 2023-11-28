@@ -1,3 +1,11 @@
+default: install_requirements
+
+streamlit:
+	@streamlit run frontend/app.py
+
+install_requirements:
+	@pip install -r requirements.txt
+
 clean_dataset:
 	rm -rf TextRecognition/DonutApproach/dataset/*
 
