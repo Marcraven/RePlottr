@@ -2,8 +2,7 @@
 raw_data/
 TextRecognition/DonutApproach/result/
 TextRecognition/DonutApproach/dataset/
-TextRecognition
-
+TextRecognition/DonutApproach/donut/__pycache__/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
