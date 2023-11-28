@@ -3,6 +3,7 @@ raw_data/
 TextRecognition/DonutApproach/result/
 TextRecognition/DonutApproach/dataset/
 TextRecognition/DonutApproach/donut/__pycache__/
+ObjectRecognition/yolo/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
