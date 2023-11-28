@@ -331,7 +331,6 @@ legends = [
 
 markers = [
     ".",
-    ",",
     "o",
     "v",
     "^",
@@ -394,76 +393,84 @@ def create_data(start, end, folder):
         # Generate random data
         xlim = np.random.randint(low=0, high=1000, size=1)
         ylim = np.random.randint(low=0, high=1000, size=1)
-        num_series = np.random.randint(2, 3)
+        num_series = 1  # np.random.randint(1, 1)
         num_points = np.random.randint(10, 40)
 
         # Create an empty list to store series data
         series = []
+        fig, ax = plt.subplots(figsize=(3.2, 2.4), dpi=100)
 
-        plt.figure(figsize=(3.2, 2.4), dpi=100)
         # Generate and plot random data for each series
-        for i in range(num_series + 1):
+        for i in range(num_series):
             name = random.choice(legends)
             points_serie = max(num_points // num_series + np.random.randint(-2, 2), 1)
-            x_values = np.round(np.random.rand(points_serie) * xlim, decimals=1)
-            y_values = np.round(np.random.rand(points_serie) * ylim, decimals=1)
-            series.append(name)  # 'x': list(x_values), 'y': list(y_values)})
-
+            x_data = np.round(np.random.rand(points_serie) * xlim, decimals=1)
+            y_data = np.round(np.random.rand(points_serie) * ylim, decimals=1)
+            marker = random.choice(markers)
             # Create a scatter plot for the current series
-            plt.scatter(
-                x=x_values,
-                y=y_values,
+            ax.scatter(
+                x=x_data,
+                y=y_data,
                 label=name,
-                marker=random.choice(markers),
+                marker=marker,
                 color=random.choice(colors),
             )
-        plt.legend(loc="upper right", framealpha=0.3)  # , bbox_to_anchor=(0.6,0.5))
+            series.append(
+                {"name": name, "marker": marker, "x": list(x_data), "y": list(y_data)}
+            )
+
+        # ax.legend(loc="upper right", framealpha=0.3)  # , bbox_to_anchor=(0.6,0.5))
         # Add labels and title
         x_label = random.choice(labels)
         y_label = random.choice(labels)
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
-        plt.title(plot_title)
+        ax.set_title(plot_title)
 
-        x_ticks = plt.xticks()[0].tolist()
-        y_ticks = plt.xticks()[0].tolist()
+        # Show the legend for all series
 
         # file names
         fname = folder + str(j).zfill(4)
         # Save the plot with smaller margins
-        plt.savefig(
+        fig.savefig(
             fname + ".jpg",
             dpi=100,
             bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
         )
 
-        # Create ground truth dictionary
-        ground_truth = {
-            "title": plot_title,
-            "x_label": x_label,
-            "x_ticks": list(x_ticks),
-            "y_label": y_label,
-            "y_ticks": list(y_ticks),
-            "series": series,
-        }
+        yolo_target = np.empty((0, 5))
+        ### HERE WE NEED TO APPEND THE POSITIONS OF THE XTICKS AND YTICKS
 
-        metadata = {
-            "file_name": str(j).zfill(4) + ".jpg",
-            "ground_truth": '{"gt_parse": ' + json.dumps(ground_truth) + "}",
-        }
-        metadata_list.append(metadata)
-        plt.clf()
-        plt.cla()
+        # What we do here is take the data from the series, move it to the figure coordinate system and then save it  in a way yolo can understand it
 
-    # File path for the JSONL file
-    file_path = folder + "/metadata.jsonl"
+        for i in range(num_series):
+            x_data = series[i]["x"]
+            y_data = series[i]["y"]
+            marker = series[i]["marker"]
+            # Transform data to display coordinates
+            xy_display = ax.transData.transform(np.column_stack((x_data, y_data)))
 
-    # Writing data to the JSONL file
-    with open(file_path, "w") as file:
-        for item in metadata_list:
-            json.dump(item, file, default=str)  # Use str() for non-serializable objects
-            file.write("\n")  # Add a newline character to separate JSON objects
+            # Transform display coordinates to figure coordinates
+            xy_figure = fig.transFigure.inverted().transform(xy_display)
+            xy_figure[:, 1] = (
+                1 - xy_figure[:, 1]
+            )  # We flip the y axis because YOLO wants the 0,0 to be on the top left of the image
+            len_xy = xy_figure.shape[0]
+            yolo_target = np.vstack(
+                (
+                    yolo_target,
+                    np.hstack(
+                        (
+                            np.zeros((len_xy, 1)) + markers.index(marker) + 2,
+                            xy_figure,
+                            0.1 * np.ones((len_xy, 2)),
+                        )
+                    ),
+                )
+            )
+
+        np.savetxt(fname + ".txt", yolo_target, delimiter=" ", fmt="%1.4f")
 
 
 if __name__ == "__main__":
@@ -472,7 +479,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
-    dataset = "./TextRecognition/DonutApproach/dataset"  # f'./Dataset_{train_size}_' + str(val_split).replace(".", "") +'_' + str(test_split).replace(".", "")
+    dataset = "ObjectRecognition/yolo/dataset"  # f'./Dataset_{train_size}_' + str(val_split).replace(".", "") +'_' + str(test_split).replace(".", "")
     train_dir = dataset + "/train/"
     val_dir = dataset + "/validation/"
     test_dir = dataset + "/test/"
