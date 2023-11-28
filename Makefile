@@ -16,5 +16,4 @@ train_donut:
 	python TextRecognition/DonutApproach/train.py --config TextRecognition/DonutApproach/config/train_cord.yaml --exp_version "test_experiment2"
 
 train_yolo:
-	python ObjectRecognition/train_yolo.py --output_path /root/code/marcraven/DonutPlot/ObjectRecognition/yolo/dataset/results --resume
-	
+	python ObjectRecognition/train_yolo.py
