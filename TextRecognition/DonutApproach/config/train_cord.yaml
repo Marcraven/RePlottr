@@ -1,4 +1,4 @@
-resume_from_checkpoint_path: null # only used for resume_from_checkpoint option in PL
+resume_from_checkpoint_path: True # only used for resume_from_checkpoint option in PL
 result_path: "TextRecognition/DonutApproach/result"
 pretrained_model_name_or_path: "naver-clova-ix/donut-base" # "naver-clova-ix/cord-v2" # loading a pre-trained model (from moldehub or path)
 dataset_name_or_paths: ["TextRecognition/DonutApproach/dataset"] # loading datasets (from moldehub or path)

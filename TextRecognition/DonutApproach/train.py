@@ -133,7 +133,7 @@ def train(config):
         dirpath=Path(config.result_path) / config.exp_name / config.exp_version,
         filename="artifacts",
         save_top_k=1,
-        save_last=False,
+        save_last=True,
         mode="min",
     )
 
