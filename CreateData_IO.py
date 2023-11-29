@@ -454,7 +454,7 @@ def create_data(start, end, folder):
             "x_ticks": list(plt.xticks()[0].tolist()),
             "y_label": y_label,
             "y_ticks": list(plt.yticks()[0].tolist()),
-            "series": series,
+            # "series": series,
         }
         metadata = {
             "file_name": str(j).zfill(4) + ".jpg",
