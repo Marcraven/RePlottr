@@ -6,8 +6,8 @@ import os
 import sys
 
 
-### Define constants
-train_size = 800
+##### Define constants #####
+train_size = 8
 val_split = 0.125
 test_split = 0.125
 
@@ -383,15 +383,13 @@ colors = [
 ]
 
 
-### Create data function
+##### Define data creation function #####
 def create_data(start, end, folder):
     """This generates a number of Train, Evaluate or Test data on a specific folder
     start: number of first scatterplot picture
     end: number of last scatterplot picture
     folder: location for saving final pictures
     """
-
-    metadata_list = []
 
     for j in range(start, end):
         # Generate random data
@@ -437,6 +435,8 @@ def create_data(start, end, folder):
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
         ax.set_title(plot_title)
 
+        fig.tight_layout()
+
         # Create file names
         fname = folder + str(j).zfill(4)
 
@@ -444,8 +444,7 @@ def create_data(start, end, folder):
         fig.savefig(
             fname + ".jpg",
             dpi=100,
-            bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
-        )
+        )  # bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56)
 
         ##### Define Yolo target #####
         yolo_target = np.empty((0, 5))
@@ -500,9 +499,9 @@ def create_data(start, end, folder):
 
         # Standardise pixel coordinates to (0,1)
         x_ticks_x_coord_std = x_ticks_x_coord_pixel / fig_width
-        x_ticks_y_coord_std = x_ticks_y_coord_pixel_flip / fig_height
+        x_ticks_y_coord_std = x_ticks_y_coord_pixel_flip / fig_height + 0.04
 
-        y_ticks_x_coord_std = y_ticks_x_coord_pixel / fig_width
+        y_ticks_x_coord_std = y_ticks_x_coord_pixel / fig_width - 0.055
         y_ticks_y_coord_std = y_ticks_y_coord_pixel_flip / fig_height
 
         # Create additional rows to Yolo output
@@ -514,7 +513,7 @@ def create_data(start, end, folder):
                         0 * np.ones((len(x_ticks_data), 1)),
                         np.expand_dims(x_ticks_x_coord_std, 1),
                         np.expand_dims(x_ticks_y_coord_std, 1),
-                        0.1 * np.ones((len(x_ticks_data), 2)),
+                        0.13 * np.ones((len(x_ticks_data), 2)),
                     )
                 ),
                 np.hstack(
@@ -522,7 +521,7 @@ def create_data(start, end, folder):
                         1 * np.ones((len(y_ticks_data), 1)),
                         np.expand_dims(y_ticks_x_coord_std, 1),
                         np.expand_dims(y_ticks_y_coord_std, 1),
-                        0.1 * np.ones((len(y_ticks_data), 2)),
+                        0.13 * np.ones((len(y_ticks_data), 2)),
                     )
                 ),
             )
@@ -568,6 +567,7 @@ def create_data(start, end, folder):
         plt.close()
 
 
+##### If name = main #####
 if __name__ == "__main__":
     plt.ioff()
 
@@ -575,7 +575,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
-    dataset = "ObjectRecognition/yolo/dataset"  # f'./Dataset_{train_size}_' + str(val_split).replace(".", "") +'_' + str(test_split).replace(".", "")
+    dataset = "ObjectRecognition/yolo/dataset"
     train_dir = dataset + "/train/"
     val_dir = dataset + "/validation/"
     test_dir = dataset + "/test/"
@@ -583,9 +583,11 @@ if __name__ == "__main__":
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
+
     print("Starting evaluation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
     create_data(0, int(train_size * val_split), val_dir)
+
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
     create_data(0, int(train_size * test_split), test_dir)
