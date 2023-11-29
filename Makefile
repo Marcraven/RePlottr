@@ -16,10 +16,4 @@ train_donut:
 	python TextRecognition/DonutApproach/train.py --config TextRecognition/DonutApproach/config/train_cord.yaml --exp_version "test_experiment2"
 
 train_yolo:
-	python ObjectRecognition/train_yolo.py project=/ObjectRecognition/yolo/dataset/results
-
-clean_yolo_dataset:
-	rm -rf ObjectRecognition/yolo/dataset/*
-
-yolo_dataset:
-	python CreateData_Yolo.py
+	python ObjectRecognition/train_yolo.py
