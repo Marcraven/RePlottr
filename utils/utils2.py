@@ -31,7 +31,7 @@ colors = [
 ]
 
 
-def draw_boxes(
+def draw_boxes_all(
     source_path: str = "ObjectRecognition/yolo/dataset/train/",
     save_path: str = "ObjectRecognition/yolo/dataset/train/boxed/",
 ):
@@ -83,4 +83,4 @@ if __name__ == "__main__":
         boxed_folder
     ) else None
 
-    draw_boxes(train_folder, boxed_folder)
+    draw_boxes_all(train_folder, boxed_folder)
