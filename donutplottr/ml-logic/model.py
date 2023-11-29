@@ -7,7 +7,6 @@ import argparse
 from sconf import Config
 import datetime
 
-import comet_ml
 from comet_ml import Experiment
 from pytorch_lightning.loggers import CometLogger
 
