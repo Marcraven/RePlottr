@@ -1,11 +1,13 @@
 # Current result and data folders
 raw_data/
+notebooks/
 TextRecognition/DonutApproach/result/
 TextRecognition/DonutApproach/dataset/
 TextRecognition/DonutApproach/donut/__pycache__/
 donutplottr/dataset/
 donutplottr/result/
 donutplottr/modelfile.pth
+ObjectRecognition/yolo/dataset/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

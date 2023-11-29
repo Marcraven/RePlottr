@@ -39,6 +39,9 @@ class CustomCheckpointIO(CheckpointIO):
         checkpoint["state_dict"] = {
             "model." + key: value for key, value in state_dict.items()
         }
+        checkpoint["state_dict"] = {
+            "model." + key: value for key, value in state_dict.items()
+        }
         return checkpoint
 
     def remove_checkpoint(self, path) -> None:
@@ -95,9 +98,32 @@ def train(config):
         task_name = os.path.basename(
             dataset_name_or_path
         )  # e.g., cord-v2, docvqa, rvlcdip, ...
+        task_name = os.path.basename(
+            dataset_name_or_path
+        )  # e.g., cord-v2, docvqa, rvlcdip, ...
 
         # add categorical special tokens (optional)
         if task_name == "rvlcdip":
+            model_module.model.decoder.add_special_tokens(
+                [
+                    "<advertisement/>",
+                    "<budget/>",
+                    "<email/>",
+                    "<file_folder/>",
+                    "<form/>",
+                    "<handwritten/>",
+                    "<invoice/>",
+                    "<letter/>",
+                    "<memo/>",
+                    "<news_article/>",
+                    "<presentation/>",
+                    "<questionnaire/>",
+                    "<resume/>",
+                    "<scientific_publication/>",
+                    "<scientific_report/>",
+                    "<specification/>",
+                ]
+            )
             model_module.model.decoder.add_special_tokens(
                 [
                     "<advertisement/>",
@@ -130,6 +156,9 @@ def train(config):
                     split=split,
                     task_start_token=config.task_start_tokens[i]
                     if config.get("task_start_tokens", None)
+                    else f"<s_{task_name}>",
+                    prompt_end_token="<s_answer>"
+                    if "docvqa" in dataset_name_or_path
                     else f"<s_{task_name}>",
                     prompt_end_token="<s_answer>"
                     if "docvqa" in dataset_name_or_path
@@ -185,6 +214,11 @@ def train(config):
         data_module,
         ckpt_path=config.get("resume_from_checkpoint_path", None),
     )
+    trainer.fit(
+        model_module,
+        data_module,
+        ckpt_path=config.get("resume_from_checkpoint_path", None),
+    )
 
 
 if __name__ == "__main__":
@@ -202,7 +236,15 @@ if __name__ == "__main__":
         if not args.exp_version
         else args.exp_version
     )
+    config.exp_version = (
+        datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        if not args.exp_version
+        else args.exp_version
+    )
 
+    save_config_file(
+        config, Path(config.result_path) / config.exp_name / config.exp_version
+    )
     save_config_file(
         config, Path(config.result_path) / config.exp_name / config.exp_version
     )

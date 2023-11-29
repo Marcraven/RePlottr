@@ -60,6 +60,7 @@ class DonutModelPLModule(pl.LightningModule):
         self.log_dict({"train_loss": loss}, sync_dist=True)
         if not self.pytorch_lightning_version_is_1:
             self.log("loss", loss, prog_bar=True)
+            self.log("loss", loss, prog_bar=True)
         return loss
 
     def on_validation_epoch_start(self) -> None:
@@ -70,6 +71,10 @@ class DonutModelPLModule(pl.LightningModule):
     def validation_step(self, batch, batch_idx, dataloader_idx=0):
         image_tensors, decoder_input_ids, prompt_end_idxs, answers = batch
         decoder_prompts = pad_sequence(
+            [
+                input_id[: end_idx + 1]
+                for input_id, end_idx in zip(decoder_input_ids, prompt_end_idxs)
+            ],
             [
                 input_id[: end_idx + 1]
                 for input_id, end_idx in zip(decoder_input_ids, prompt_end_idxs)
@@ -139,10 +144,18 @@ class DonutModelPLModule(pl.LightningModule):
                 if max_iter is not None
                 else self.config.max_steps
             )
+            max_iter = (
+                min(self.config.max_steps, max_iter)
+                if max_iter is not None
+                else self.config.max_steps
+            )
 
         assert max_iter is not None
         optimizer = torch.optim.Adam(self.parameters(), lr=self.config.lr)
         scheduler = {
+            "scheduler": self.cosine_scheduler(
+                optimizer, max_iter, self.config.warmup_steps
+            ),
             "scheduler": self.cosine_scheduler(
                 optimizer, max_iter, self.config.warmup_steps
             ),
@@ -164,6 +177,11 @@ class DonutModelPLModule(pl.LightningModule):
 
     @rank_zero_only
     def on_save_checkpoint(self, checkpoint):
+        save_path = (
+            Path(self.config.result_path)
+            / self.config.exp_name
+            / self.config.exp_version
+        )
         save_path = (
             Path(self.config.result_path)
             / self.config.exp_name
@@ -224,6 +242,7 @@ class DonutDataPLModule(pl.LightningDataModule):
 
     @staticmethod
     def seed_worker(wordker_id):
+        worker_seed = torch.initial_seed() % 2**32
         worker_seed = torch.initial_seed() % 2**32
         np.random.seed(worker_seed)
         random.seed(worker_seed)

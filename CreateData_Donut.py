@@ -4,13 +4,13 @@ from matplotlib.transforms import Bbox
 import random
 import os
 import sys
-import json
 
 
-##### Define constants #####
-train_size = 20
+### Here we define the constants
+train_size = 100
 val_split = 0.125
 test_split = 0.125
+
 
 labels = [
     "Length [nm]",
@@ -331,6 +331,7 @@ legends = [
 
 markers = [
     ".",
+    ",",
     "o",
     "v",
     "^",
@@ -384,13 +385,10 @@ colors = [
 ]
 
 
-##### Define data creation function #####
+### Create data function
 def create_data(start, end, folder):
-    """This generates a number of Train, Evaluate or Test data on a specific folder
-    start: number of first scatterplot picture
-    end: number of last scatterplot picture
-    folder: location for saving final pictures
-    """
+    """This generates a number of Train, Evaluate or Test data on a specific folder"""
+
     metadata_list = []
     for j in range(start, end):
         # Generate random data
@@ -402,45 +400,39 @@ def create_data(start, end, folder):
         # Create an empty list to store series data
         series = []
 
+        plt.figure(figsize=(3.2, 2.4), dpi=100)
         # Generate and plot random data for each series
-        fig, ax = plt.subplots(figsize=(3.2, 2.4), dpi=100)
-
-        for i in range(num_series):
-            # Create series
+        for i in range(num_series + 1):
             name = random.choice(legends)
             points_serie = max(num_points // num_series + np.random.randint(-2, 2), 1)
-            x_data = np.round(np.random.rand(points_serie) * xlim, decimals=1)
-            y_data = np.round(np.random.rand(points_serie) * ylim, decimals=1)
-            marker = random.choice(markers)
-            series.append(
-                {"name": name, "marker": marker, "x": list(x_data), "y": list(y_data)}
-            )
+            x_values = np.round(np.random.rand(points_serie) * xlim, decimals=1)
+            y_values = np.round(np.random.rand(points_serie) * ylim, decimals=1)
+            series.append(name)  # 'x': list(x_values), 'y': list(y_values)})
 
             # Create a scatter plot for the current series
-            ax.scatter(
-                x=x_data,
-                y=y_data,
+            plt.scatter(
+                x=x_values,
+                y=y_values,
                 label=name,
-                marker=marker,
+                marker=random.choice(markers),
                 color=random.choice(colors),
             )
-
-        # Add legend
-        # ax.legend(loc="upper right", framealpha=0.3)  # , bbox_to_anchor=(0.6,0.5))
-
+        plt.legend(loc="upper right", framealpha=0.3)  # , bbox_to_anchor=(0.6,0.5))
         # Add labels and title
         x_label = random.choice(labels)
         y_label = random.choice(labels)
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
-        ax.set_title(plot_title)
+        plt.title(plot_title)
 
-        # Create file names
+        x_ticks = plt.xticks()[0].tolist()
+        y_ticks = plt.xticks()[0].tolist()
+
+        # file names
         fname = folder + str(j).zfill(4)
-
         # Save the plot with smaller margins
-        fig.savefig(
+        plt.savefig(
             fname + ".jpg",
             dpi=100,
             bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
@@ -453,8 +445,8 @@ def create_data(start, end, folder):
             "x_label": x_label,
             "x_ticks": list(plt.xticks()[0].tolist()),
             "y_label": y_label,
-            "y_ticks": list(plt.yticks()[0].tolist()),
-            # "series": series,
+            "y_ticks": list(y_ticks),
+            "series": series,
         }
         metadata = {
             "file_name": str(j).zfill(4) + ".jpg",
@@ -484,11 +476,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
-<<<<<<< HEAD
-    dataset = "./donutplottr/dataset"
-=======
-    dataset = "./TextRecognition/DonutApproach/dataset"
->>>>>>> 846e5cf2e8e55022cf1b5170cf64901bdc628576
+    dataset = "./TextRecognition/DonutApproach/dataset"  # f'./Dataset_{train_size}_' + str(val_split).replace(".", "") +'_' + str(test_split).replace(".", "")
     train_dir = dataset + "/train/"
     val_dir = dataset + "/validation/"
     test_dir = dataset + "/test/"
@@ -496,9 +484,11 @@ if __name__ == "__main__":
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
+
     print("Starting evaluation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
     create_data(0, int(train_size * val_split), val_dir)
+
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
     create_data(0, int(train_size * test_split), test_dir)
