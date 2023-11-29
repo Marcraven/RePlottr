@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 import random
-import json
 import os
 import sys
+import json
 
 
 ##### Define constants #####
-train_size = 100
+train_size = 20
 val_split = 0.125
 test_split = 0.125
 
@@ -331,7 +331,6 @@ legends = [
 
 markers = [
     ".",
-    ",",
     "o",
     "v",
     "^",
@@ -392,14 +391,12 @@ def create_data(start, end, folder):
     end: number of last scatterplot picture
     folder: location for saving final pictures
     """
-
     metadata_list = []
-
     for j in range(start, end):
         # Generate random data
         xlim = np.random.randint(low=0, high=1000, size=1)
         ylim = np.random.randint(low=0, high=1000, size=1)
-        num_series = np.random.randint(2, 3)
+        num_series = 1  # np.random.randint(1, 1)
         num_points = np.random.randint(10, 40)
 
         # Create an empty list to store series data
@@ -408,19 +405,21 @@ def create_data(start, end, folder):
         # Generate and plot random data for each series
         fig, ax = plt.subplots(figsize=(3.2, 2.4), dpi=100)
 
-        for i in range(num_series + 1):
+        for i in range(num_series):
             # Create series
             name = random.choice(legends)
             points_serie = max(num_points // num_series + np.random.randint(-2, 2), 1)
-            x_values = np.round(np.random.rand(points_serie) * xlim, decimals=1)
-            y_values = np.round(np.random.rand(points_serie) * ylim, decimals=1)
+            x_data = np.round(np.random.rand(points_serie) * xlim, decimals=1)
+            y_data = np.round(np.random.rand(points_serie) * ylim, decimals=1)
             marker = random.choice(markers)
-            series.append(name)  # 'x': list(x_values), 'y': list(y_values)})
+            series.append(
+                {"name": name, "marker": marker, "x": list(x_data), "y": list(y_data)}
+            )
 
             # Create a scatter plot for the current series
             ax.scatter(
-                x=x_values,
-                y=y_values,
+                x=x_data,
+                y=y_data,
                 label=name,
                 marker=marker,
                 color=random.choice(colors),
@@ -437,9 +436,21 @@ def create_data(start, end, folder):
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
         ax.set_title(plot_title)
 
+        plt.tight_layout()
+
+        # Create file names
+        fname = folder + str(j).zfill(4)
+
+        # Save the plot with smaller margins
+        fig.savefig(
+            fname + ".jpg",
+            dpi=100,
+            bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
+        )
+
         # Obtain ticks data
-        x_ticks = ax.get_xticks()
-        y_ticks = ax.get_yticks()
+        x_ticks_data = ax.get_xticks()
+        y_ticks_data = ax.get_yticks()
 
         # Get minimum axis values
         x_lim_min, x_lim_max = ax.get_xlim()
@@ -466,27 +477,16 @@ def create_data(start, end, folder):
                 y_ticks_data, np.where(y_ticks_data == y_ticks_data.max())
             )
 
-        # Create file names
-        fname = folder + str(j).zfill(4)
+        # Create ground truth dictionary for DONUT and add it to metadata
 
-        # Save the plot with smaller margins
-        fig.savefig(
-            fname + ".jpg",
-            dpi=100,
-            bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
-        )
-
-        # Create ground truth dictionary
         ground_truth = {
             "title": plot_title,
             "x_label": x_label,
-            "x_ticks": list(x_ticks),
+            "x_ticks": x_ticks_data,
             "y_label": y_label,
-            "y_ticks": list(y_ticks),
-            "series": series,
+            "y_ticks": y_ticks_data,
+            # "series": series,
         }
-
-        # Create metadata
         metadata = {
             "file_name": str(j).zfill(4) + ".jpg",
             "ground_truth": '{"gt_parse": ' + json.dumps(ground_truth) + "}",
@@ -497,7 +497,6 @@ def create_data(start, end, folder):
         plt.clf()
         plt.cla()
         plt.close()
-
     # File path for the JSONL file
     file_path = folder + "/metadata.jsonl"
 
@@ -517,18 +516,16 @@ if __name__ == "__main__":
         train_size = int(sys.argv[1])
 
     dataset = "./TextRecognition/DonutApproach/dataset"
-    train_dir = dataset + "/1. train/"
-    val_dir = dataset + "/2. validation/"
-    test_dir = dataset + "/3. test/"
+    train_dir = dataset + "/train/"
+    val_dir = dataset + "/validation/"
+    test_dir = dataset + "/test/"
 
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
-
     print("Starting evaluation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
     create_data(0, int(train_size * val_split), val_dir)
-
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
     create_data(0, int(train_size * test_split), test_dir)

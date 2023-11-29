@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Bbox
 import random
-import json
 import os
 import sys
+import json
 
 
 ##### Define constants #####
-train_size = 80
+train_size = 20
 val_split = 0.125
 test_split = 0.125
 
@@ -331,7 +331,6 @@ legends = [
 
 markers = [
     ".",
-    ",",
     "o",
     "v",
     "^",
@@ -392,87 +391,196 @@ def create_data(start, end, folder):
     end: number of last scatterplot picture
     folder: location for saving final pictures
     """
-
     metadata_list = []
-
     for j in range(start, end):
         # Generate random data
         xlim = np.random.randint(low=0, high=1000, size=1)
         ylim = np.random.randint(low=0, high=1000, size=1)
-        num_series = np.random.randint(2, 3)
+        num_series = 1  # np.random.randint(1, 1)
         num_points = np.random.randint(10, 40)
 
         # Create an empty list to store series data
         series = []
 
         # Generate and plot random data for each series
-        plt.figure(figsize=(3.2, 2.4), dpi=100)
+        fig, ax = plt.subplots(figsize=(3.2, 2.4), dpi=100)
 
-        for i in range(num_series + 1):
+        for i in range(num_series):
             # Create series
             name = random.choice(legends)
             points_serie = max(num_points // num_series + np.random.randint(-2, 2), 1)
-            x_values = np.round(np.random.rand(points_serie) * xlim, decimals=1)
-            y_values = np.round(np.random.rand(points_serie) * ylim, decimals=1)
+            x_data = np.round(np.random.rand(points_serie) * xlim, decimals=1)
+            y_data = np.round(np.random.rand(points_serie) * ylim, decimals=1)
             marker = random.choice(markers)
-            series.append(name)  # 'x': list(x_values), 'y': list(y_values)})
+            series.append(
+                {"name": name, "marker": marker, "x": list(x_data), "y": list(y_data)}
+            )
 
             # Create a scatter plot for the current series
-            plt.scatter(
-                x=x_values,
-                y=y_values,
+            ax.scatter(
+                x=x_data,
+                y=y_data,
                 label=name,
                 marker=marker,
                 color=random.choice(colors),
             )
 
         # Add legend
-        plt.legend(loc="upper right", framealpha=0.3)  # , bbox_to_anchor=(0.6,0.5))
+        # ax.legend(loc="upper right", framealpha=0.3)  # , bbox_to_anchor=(0.6,0.5))
 
         # Add labels and title
         x_label = random.choice(labels)
         y_label = random.choice(labels)
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
-        plt.title(plot_title)
-
-        # Derive ticks data
-        x_ticks = plt.xticks()[0].tolist()
-        y_ticks = plt.yticks()[0].tolist()
+        ax.set_title(plot_title)
 
         # Create file names
         fname = folder + str(j).zfill(4)
 
         # Save the plot with smaller margins
-        plt.savefig(
+        fig.savefig(
             fname + ".jpg",
             dpi=100,
             bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
         )
 
-        # Create ground truth dictionary
+        # Create ground truth dictionary for DONUT and add it to metadata
+
         ground_truth = {
             "title": plot_title,
             "x_label": x_label,
-            "x_ticks": list(x_ticks),
+            "x_ticks": list(plt.xticks()[0].tolist()),
             "y_label": y_label,
-            "y_ticks": list(y_ticks),
-            "series": series,
+            "y_ticks": list(plt.yticks()[0].tolist()),
+            # "series": series,
         }
-
-        # Create metadata
         metadata = {
             "file_name": str(j).zfill(4) + ".jpg",
             "ground_truth": '{"gt_parse": ' + json.dumps(ground_truth) + "}",
         }
         metadata_list.append(metadata)
 
+        ##### Define Yolo target #####
+        yolo_target = np.empty((0, 5))
+
+        ##### Add position coordinates of x axis ticks and y axis ticks to Yolo putput #####
+
+        # Obtain ticks data
+        x_ticks_data = ax.get_xticks()
+        y_ticks_data = ax.get_yticks()
+
+        # Get minimum axis values
+        x_lim_min, x_lim_max = ax.get_xlim()
+        y_lim_min, y_lim_max = ax.get_ylim()
+
+        # Remove first and last tick items that are not visualised on chart
+        if x_ticks_data.min() != x_lim_min:
+            x_ticks_data = np.delete(
+                x_ticks_data, np.where(x_ticks_data == x_ticks_data.min())
+            )
+
+        if x_ticks_data.max() != x_lim_max:
+            x_ticks_data = np.delete(
+                x_ticks_data, np.where(x_ticks_data == x_ticks_data.max())
+            )
+
+        if y_ticks_data.min() != y_lim_min:
+            y_ticks_data = np.delete(
+                y_ticks_data, np.where(y_ticks_data == y_ticks_data.min())
+            )
+
+        if y_ticks_data.max() != y_lim_max:
+            y_ticks_data = np.delete(
+                y_ticks_data, np.where(y_ticks_data == y_ticks_data.max())
+            )
+
+        # Convert data coordinates to pixel coordinates
+        x_ticks_pixel = ax.transData.transform([[x, y_lim_min] for x in x_ticks_data])
+        y_ticks_pixel = ax.transData.transform([[x_lim_min, y] for y in y_ticks_data])
+
+        # Split pixel coordinats into separate lists
+        x_ticks_x_coord_pixel = x_ticks_pixel[:, 0]
+        x_ticks_y_coord_pixel = x_ticks_pixel[:, 1]
+
+        y_ticks_x_coord_pixel = y_ticks_pixel[:, 0]
+        y_ticks_y_coord_pixel = y_ticks_pixel[:, 1]
+
+        # Flip y coordinates verically
+        fig_width, fig_height = fig.canvas.get_width_height()
+
+        x_ticks_y_coord_pixel_flip = fig_height - x_ticks_y_coord_pixel
+        y_ticks_y_coord_pixel_flip = fig_height - y_ticks_y_coord_pixel
+
+        # Standardise pixel coordinates to (0,1)
+        x_ticks_x_coord_std = x_ticks_x_coord_pixel / fig_width
+        x_ticks_y_coord_std = x_ticks_y_coord_pixel_flip / fig_height
+
+        y_ticks_x_coord_std = y_ticks_x_coord_pixel / fig_width
+        y_ticks_y_coord_std = y_ticks_y_coord_pixel_flip / fig_height
+
+        # Create additional rows to Yolo output
+        yolo_target = np.vstack(
+            (
+                yolo_target,
+                np.hstack(
+                    (
+                        0 * np.ones((len(x_ticks_data), 1)),
+                        np.expand_dims(x_ticks_x_coord_std, 1),
+                        np.expand_dims(x_ticks_y_coord_std, 1),
+                        0.1 * np.ones((len(x_ticks_data), 2)),
+                    )
+                ),
+                np.hstack(
+                    (
+                        1 * np.ones((len(y_ticks_data), 1)),
+                        np.expand_dims(y_ticks_x_coord_std, 1),
+                        np.expand_dims(y_ticks_y_coord_std, 1),
+                        0.1 * np.ones((len(y_ticks_data), 2)),
+                    )
+                ),
+            )
+        )
+
+        ##### Add dots' position coordinates to Yolo output #####
+        for i in range(num_series):
+            ### Obtain series data
+            x_data = series[i]["x"]
+            y_data = series[i]["y"]
+            marker = series[i]["marker"]
+
+            # Transform data to display pixel coordinates
+            xy_display = ax.transData.transform(np.column_stack((x_data, y_data)))
+
+            # Transform pixel coordinates to figure coordinates and flip y coordinates vertically
+            xy_figure = fig.transFigure.inverted().transform(xy_display)
+
+            # Flip the y axis because Yolo wants the 0,0 to be on the top left of the image
+            xy_figure[:, 1] = 1 - xy_figure[:, 1]
+
+            # Create additional rows to Yolo output
+            len_xy = xy_figure.shape[0]
+            yolo_target = np.vstack(
+                (
+                    yolo_target,
+                    np.hstack(
+                        (
+                            np.zeros((len_xy, 1)) + markers.index(marker) + 2,
+                            xy_figure,
+                            0.05 * np.ones((len_xy, 2)),
+                        )
+                    ),
+                )
+            )
+
+        # Save Yolo target in txt format that is read by Yolo model
+        np.savetxt(fname + ".txt", yolo_target, delimiter=" ", fmt="%1.4f")
+
         # Clean figure, axes and close figure
         plt.clf()
         plt.cla()
         plt.close()
-
     # File path for the JSONL file
     file_path = folder + "/metadata.jsonl"
 
@@ -492,18 +600,16 @@ if __name__ == "__main__":
         train_size = int(sys.argv[1])
 
     dataset = "./dataset"
-    train_dir = dataset + "/1. train/"
-    val_dir = dataset + "/2. validation/"
-    test_dir = dataset + "/3. test/"
+    train_dir = dataset + "/train/"
+    val_dir = dataset + "/validation/"
+    test_dir = dataset + "/test/"
 
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
-
     print("Starting evaluation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
     create_data(0, int(train_size * val_split), val_dir)
-
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
     create_data(0, int(train_size * test_split), test_dir)
