@@ -36,3 +36,6 @@ clean_io_dataset:
 
 io_dataset:
 	python CreateData_IO.py
+
+boxes:
+	python utils/utils.py

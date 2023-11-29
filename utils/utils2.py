@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 import os, os.path
-import pathlib
 
 colors = [
     (255, 0, 0),  # Red
@@ -34,7 +33,7 @@ colors = [
 
 def draw_boxes(
     source_path: str = "ObjectRecognition/yolo/dataset/train/",
-    save_path: str = '"ObjectRecognition/yolo/dataset/train/boxed/',
+    save_path: str = "ObjectRecognition/yolo/dataset/train/boxed/",
 ):
     # Create list with JPG and TXT files and sort lists alphabetically
     jpg_file_list = [file for file in os.listdir(source_path) if file.endswith(".jpg")]

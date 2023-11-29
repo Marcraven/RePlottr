@@ -32,13 +32,16 @@ colors = [
 ]
 
 
-def draw_boxes(path: str = "ObjectRecognition/yolo/dataset/train/0000"):
+def draw_boxes(
+    source_path: str = "ObjectRecognition/yolo/dataset/train/0000",
+    save_path: str = "ObjectRecognition/yolo/dataset/train/0000",
+):
     # Read TXT files and split the lines
-    with open(path + ".txt", "r") as file:
+    with open(source_path + ".txt", "r") as file:
         file_contents = file.read().splitlines()
 
     # Read JPG files and save contents and pixels
-    img = cv2.imread(path + ".jpg")
+    img = cv2.imread(source_path + ".jpg")
     x_pix = img.shape[1]
     y_pix = img.shape[0]
 
@@ -59,9 +62,12 @@ def draw_boxes(path: str = "ObjectRecognition/yolo/dataset/train/0000"):
         )
 
     # Write output image
-    cv2.imwrite("test.jpg", img)
+    cv2.imwrite(save_path + "_boxed.jpg", img)
 
 
 # If name = main
 if __name__ == "__main__":
-    draw_boxes("ObjectRecognition/yolo/dataset/train/0000")
+    source_path = "ObjectRecognition/yolo/dataset/train/0000"
+    save_path = "ObjectRecognition/yolo/dataset/train/0000"
+
+    draw_boxes(source_path, save_path)
