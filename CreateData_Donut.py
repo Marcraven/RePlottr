@@ -4,6 +4,7 @@ from matplotlib.transforms import Bbox
 import random
 import os
 import sys
+import json
 
 
 ### Here we define the constants
