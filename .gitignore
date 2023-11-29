@@ -3,6 +3,9 @@ raw_data/
 TextRecognition/DonutApproach/result/
 TextRecognition/DonutApproach/dataset/
 TextRecognition/DonutApproach/donut/__pycache__/
+donutplottr/dataset/
+donutplottr/result/
+donutplottr/modelfile.pth
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
