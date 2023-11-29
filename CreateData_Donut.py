@@ -437,9 +437,34 @@ def create_data(start, end, folder):
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
         ax.set_title(plot_title)
 
-        # Derive ticks data
+        # Obtain ticks data
         x_ticks = ax.get_xticks()
         y_ticks = ax.get_yticks()
+
+        # Get minimum axis values
+        x_lim_min, x_lim_max = ax.get_xlim()
+        y_lim_min, y_lim_max = ax.get_ylim()
+
+        # Remove first and last tick items that are not visualised on chart
+        if x_ticks_data.min() != x_lim_min:
+            x_ticks_data = np.delete(
+                x_ticks_data, np.where(x_ticks_data == x_ticks_data.min())
+            )
+
+        if x_ticks_data.max() != x_lim_max:
+            x_ticks_data = np.delete(
+                x_ticks_data, np.where(x_ticks_data == x_ticks_data.max())
+            )
+
+        if y_ticks_data.min() != y_lim_min:
+            y_ticks_data = np.delete(
+                y_ticks_data, np.where(y_ticks_data == y_ticks_data.min())
+            )
+
+        if y_ticks_data.max() != y_lim_max:
+            y_ticks_data = np.delete(
+                y_ticks_data, np.where(y_ticks_data == y_ticks_data.max())
+            )
 
         # Create file names
         fname = folder + str(j).zfill(4)

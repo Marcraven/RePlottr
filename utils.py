@@ -1,5 +1,7 @@
 import numpy as np
 import cv2
+import os, os.path
+import pathlib
 
 colors = [
     (255, 0, 0),  # Red
@@ -31,16 +33,21 @@ colors = [
 
 
 def draw_boxes(path: str = "ObjectRecognition/yolo/dataset/train/0000"):
+    # Read TXT files and split the lines
     with open(path + ".txt", "r") as file:
         file_contents = file.read().splitlines()
+
+    # Read JPG files and save contents and pixels
     img = cv2.imread(path + ".jpg")
     x_pix = img.shape[1]
     y_pix = img.shape[0]
+
+    # Draw rectangles
     for rowraw in file_contents:
         row = np.array([float(x) for x in rowraw.split()])
         cat = int(row[0])
-        x1 = int(row[1] * x_pix)
-        y1 = int(row[2] * y_pix)
+        x1 = int(row[1] * x_pix) - int(row[3] * x_pix * 0.5)
+        y1 = int(row[2] * y_pix) - int(row[4] * y_pix * 0.5)
         x2 = x1 + int(row[3] * x_pix)
         y2 = y1 + int(row[4] * y_pix)
         cv2.rectangle(
@@ -50,8 +57,11 @@ def draw_boxes(path: str = "ObjectRecognition/yolo/dataset/train/0000"):
             color=colors[cat],
             thickness=1,
         )
+
+    # Write output image
     cv2.imwrite("test.jpg", img)
 
 
+# If name = main
 if __name__ == "__main__":
     draw_boxes("ObjectRecognition/yolo/dataset/train/0000")
