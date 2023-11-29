@@ -484,7 +484,11 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
+<<<<<<< HEAD
     dataset = "./donutplottr/dataset"
+=======
+    dataset = "./TextRecognition/DonutApproach/dataset"
+>>>>>>> 846e5cf2e8e55022cf1b5170cf64901bdc628576
     train_dir = dataset + "/train/"
     val_dir = dataset + "/validation/"
     test_dir = dataset + "/test/"
