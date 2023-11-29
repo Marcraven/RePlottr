@@ -6,7 +6,7 @@ import os
 import sys
 
 
-### Define constants
+##### Define constants #####
 train_size = 800
 val_split = 0.125
 test_split = 0.125
@@ -383,15 +383,13 @@ colors = [
 ]
 
 
-### Create data function
+##### Define data creation function #####
 def create_data(start, end, folder):
     """This generates a number of Train, Evaluate or Test data on a specific folder
     start: number of first scatterplot picture
     end: number of last scatterplot picture
     folder: location for saving final pictures
     """
-
-    metadata_list = []
 
     for j in range(start, end):
         # Generate random data
@@ -568,6 +566,7 @@ def create_data(start, end, folder):
         plt.close()
 
 
+##### If name = main #####
 if __name__ == "__main__":
     plt.ioff()
 
@@ -575,10 +574,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
-    dataset = "ObjectRecognition/yolo/dataset"  # f'./Dataset_{train_size}_' + str(val_split).replace(".", "") +'_' + str(test_split).replace(".", "")
-    train_dir = dataset + "/train/"
-    val_dir = dataset + "/validation/"
-    test_dir = dataset + "/test/"
+    dataset = "ObjectRecognition/yolo/dataset"
+    train_dir = dataset + "/1. train/"
+    val_dir = dataset + "/2. validation/"
+    test_dir = dataset + "/3. test/"
 
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None

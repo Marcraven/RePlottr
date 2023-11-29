@@ -7,8 +7,8 @@ import os
 import sys
 
 
-### Here we define the constants
-train_size = 800
+##### Define constants #####
+train_size = 80
 val_split = 0.125
 test_split = 0.125
 
@@ -385,7 +385,7 @@ colors = [
 ]
 
 
-### Create data function
+##### Define data creation function #####
 def create_data(start, end, folder):
     """This generates a number of Train, Evaluate or Test data on a specific folder
     start: number of first scatterplot picture
@@ -414,14 +414,15 @@ def create_data(start, end, folder):
             points_serie = max(num_points // num_series + np.random.randint(-2, 2), 1)
             x_values = np.round(np.random.rand(points_serie) * xlim, decimals=1)
             y_values = np.round(np.random.rand(points_serie) * ylim, decimals=1)
-            series.append({"name": name, "x": list(x_values), "y": list(y_values)})
+            marker = random.choice(markers)
+            series.append(name)  # 'x': list(x_values), 'y': list(y_values)})
 
             # Create a scatter plot for the current series
             plt.scatter(
                 x=x_values,
                 y=y_values,
                 label=name,
-                marker=random.choice(markers),
+                marker=marker,
                 color=random.choice(colors),
             )
 
@@ -435,6 +436,10 @@ def create_data(start, end, folder):
         plt.ylabel(y_label)
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
         plt.title(plot_title)
+
+        # Derive ticks data
+        x_ticks = plt.xticks()[0].tolist()
+        y_ticks = plt.yticks()[0].tolist()
 
         # Create file names
         fname = folder + str(j).zfill(4)
@@ -450,7 +455,9 @@ def create_data(start, end, folder):
         ground_truth = {
             "title": plot_title,
             "x_label": x_label,
+            "x_ticks": list(x_ticks),
             "y_label": y_label,
+            "y_ticks": list(y_ticks),
             "series": series,
         }
 
@@ -476,6 +483,7 @@ def create_data(start, end, folder):
             file.write("\n")  # Add a newline character to separate JSON objects
 
 
+##### If name = main #####
 if __name__ == "__main__":
     plt.ioff()
 
@@ -483,17 +491,19 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
-    dataset = "./dataset"  # f'./Dataset_{train_size}_' + str(val_split).replace(".", "") +'_' + str(test_split).replace(".", "")
-    train_dir = dataset + "/train/"
-    val_dir = dataset + "/validation/"
-    test_dir = dataset + "/test/"
+    dataset = "./dataset"
+    train_dir = dataset + "/1. train/"
+    val_dir = dataset + "/2. validation/"
+    test_dir = dataset + "/3. test/"
 
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
+
     print("Starting evaluation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
     create_data(0, int(train_size * val_split), val_dir)
+
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
     create_data(0, int(train_size * test_split), test_dir)
