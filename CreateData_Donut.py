@@ -436,7 +436,7 @@ def create_data(start, end, folder):
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
         ax.set_title(plot_title)
 
-        plt.tight_layout()
+        fig.tight_layout()
 
         # Create file names
         fname = folder + str(j).zfill(4)
@@ -445,8 +445,7 @@ def create_data(start, end, folder):
         fig.savefig(
             fname + ".jpg",
             dpi=100,
-            bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
-        )
+        )  # bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
 
         # Obtain ticks data
         x_ticks_data = ax.get_xticks()
@@ -478,15 +477,16 @@ def create_data(start, end, folder):
             )
 
         # Create ground truth dictionary for DONUT and add it to metadata
-
         ground_truth = {
             "title": plot_title,
             "x_label": x_label,
-            "x_ticks": x_ticks_data,
+            "x_ticks": list(x_ticks_data),
             "y_label": y_label,
-            "y_ticks": y_ticks_data,
+            "y_ticks": list(y_ticks_data),
             # "series": series,
         }
+
+        # Create metadata
         metadata = {
             "file_name": str(j).zfill(4) + ".jpg",
             "ground_truth": '{"gt_parse": ' + json.dumps(ground_truth) + "}",
@@ -497,6 +497,7 @@ def create_data(start, end, folder):
         plt.clf()
         plt.cla()
         plt.close()
+
     # File path for the JSONL file
     file_path = folder + "/metadata.jsonl"
 
@@ -523,9 +524,11 @@ if __name__ == "__main__":
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
+
     print("Starting evaluation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
     create_data(0, int(train_size * val_split), val_dir)
+
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
     create_data(0, int(train_size * test_split), test_dir)

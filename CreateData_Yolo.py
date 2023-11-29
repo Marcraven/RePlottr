@@ -7,7 +7,7 @@ import sys
 
 
 ##### Define constants #####
-train_size = 80
+train_size = 8
 val_split = 0.125
 test_split = 0.125
 
@@ -444,8 +444,7 @@ def create_data(start, end, folder):
         fig.savefig(
             fname + ".jpg",
             dpi=100,
-        )
-        # bbox_inches=Bbox.from_bounds(0, 0, 3.2, 2.56),  # (-0.26, -0.2, 3.2, 2.56)
+        )  # bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56)
 
         ##### Define Yolo target #####
         yolo_target = np.empty((0, 5))

@@ -1,0 +1,2 @@
+{"file_name": "0000.jpg", "ground_truth": "{\"gt_parse\": {\"title\": \"Stoic River\", \"x_label\": \"Power [W]\", \"x_ticks\": [0.0, 100.0, 200.0, 300.0, 400.0], \"y_label\": \"Pressure [Pa]\", \"y_ticks\": [0.0, 200.0, 400.0, 600.0, 800.0]}}"}
+{"file_name": "0001.jpg", "ground_truth": "{\"gt_parse\": {\"title\": \"Carefree Factory\", \"x_label\": \"Velocity [m/s]\", \"x_ticks\": [200.0, 400.0, 600.0, 800.0], \"y_label\": \"Illuminance [lux]\", \"y_ticks\": [0.0, 200.0, 400.0, 600.0]}}"}
