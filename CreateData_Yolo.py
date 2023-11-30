@@ -7,7 +7,7 @@ import sys
 
 
 ##### Define constants #####
-train_size = 8
+train_size = 100
 val_split = 0.125
 test_split = 0.125
 

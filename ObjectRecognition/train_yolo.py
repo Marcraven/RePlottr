@@ -16,7 +16,7 @@ def train_model():
     model.train(
         data=currentdir + "/dataset.yaml",
         # data="dataset.yaml",
-        epochs=10,
+        epochs=1,
         imgsz=320,
         save=True,  # device="gpu"
     )  # Set imgsz to 320 for training on 320xsomething images
