@@ -15,56 +15,37 @@ def train_model():
         "imgsz": 320,
     }
 
-    api = API()
-    models = api.get_model(workspace="marcraven", model_name="yolov8")
-    last_version = models.find_versions()[0]
-    version_path = currentdir + "/weights/" + last_version.replace(".", "_")
-    if os.path.exists(version_path) == False:
-        os.mkdir(version_path)
-        print("Downloading latest version...")
-        models.download(
-            version=last_version,
-            output_folder=version_path,
-            expand=True,
-        )
-    model = YOLO("yolov8s-p2.yaml").load(version_path + "/best.pt")
-
-    # temp = last_version.split(".")
-    # temp[-1] = str(int(temp[-1]) + 1)
-    # new_version = ".".join(temp)
-    # new_version_path = currentdir + "/weights/" + new_version.replace(".", "_")
-
     # Train the model
     model.train(
         data=currentdir + "dataset.yaml",
-        name="yolov8",
-        project="yolo-donutplot-marcraven",
+        name=model_name,
+        project=project,
         amp=False,
         epochs=hyper_params["epochs"],
         patience=hyper_params["patience"],
         batch=hyper_params["batch_size"],
         imgsz=hyper_params["imgsz"],
-        save=True,  # device="gpu"
-        # save_dir=new_version_path,
+        save=False,  # device="gpu"
     )  # Set imgsz to 320 for training on 320xsomething images
 
-    experiments = api.get(
-        workspace="marcraven", project_name="yolo-donutplot-marcraven"
-    )
+    experiments = api.get(workspace=workspace, project_name=project)
     experiment = api.get(
-        workspace="marcraven",
-        project_name="yolo-donutplot-marcraven",
+        workspace=workspace,
+        project_name=project,
         experiment=experiments[-1]._name,
     )
-    experiment.register_model("yolov8")
-    # path = model.export()
-    # print(path)
+    experiment.register_model(model_name)
 
 
 if __name__ == "__main__":
     currentdir = os.path.dirname(os.path.abspath(__file__)) + "/"
+
+    workspace = os.environ["WORKSPACE"]
+    model_name = os.environ["MODEL_NAME"]
+    project = os.environ["PROJECT"]
+
     api = API()
-    models = api.get_model(workspace="marcraven", model_name="yolov8")
+    models = api.get_model(workspace=workspace, model_name=model_name)
     last_version = models.find_versions()[0]
     version_path = currentdir + "/weights/" + last_version.replace(".", "_")
     if os.path.exists(version_path) == False:
@@ -75,5 +56,6 @@ if __name__ == "__main__":
             output_folder=version_path,
             expand=True,
         )
+
     model = YOLO("yolov8s-p2.yaml").load(version_path + "/best.pt")
     train_model()
