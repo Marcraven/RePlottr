@@ -8,6 +8,10 @@ donutplottr/dataset/
 donutplottr/result/
 donutplottr/modelfile.pth
 ObjectRecognition/yolo/dataset/
+dataset/
+result/
+misc/
+exploration.ipynb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
