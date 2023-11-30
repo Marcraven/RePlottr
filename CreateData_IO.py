@@ -1,16 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.transforms import Bbox
 import random
 import os
 import sys
 import json
+import time
 
 
 ##### Define constants #####
-train_size = 20
-val_split = 0.125
-test_split = 0.125
+train_size = int(os.environ.get("TRAIN_SIZE", 100))
+val_split = float(os.environ.get("VAL_SPLIT", 0.125))
+test_split = float(os.environ.get("TEST_SPLIT", 0.125))
 
 labels = [
     "Length [nm]",
@@ -517,9 +517,13 @@ def create_data(start, end, folder):
 
         # Standardise pixel coordinates to (0,1)
         x_ticks_x_coord_std = x_ticks_x_coord_pixel / fig_width
-        x_ticks_y_coord_std = x_ticks_y_coord_pixel_flip / fig_height
+        x_ticks_y_coord_std = (
+            x_ticks_y_coord_pixel_flip / fig_height + 0.05
+        )  # Note manual adjustment
 
-        y_ticks_x_coord_std = y_ticks_x_coord_pixel / fig_width
+        y_ticks_x_coord_std = (
+            y_ticks_x_coord_pixel / fig_width - 0.05
+        )  # Note manual adjustment
         y_ticks_y_coord_std = y_ticks_y_coord_pixel_flip / fig_height
 
         # Create additional rows to Yolo output
@@ -596,9 +600,13 @@ def create_data(start, end, folder):
 
 ##### If name = main #####
 if __name__ == "__main__":
+    # Record start time
+    start_time = time.time()
+
+    # Turn interactive mode off
     plt.ioff()
 
-    ### Here we define the size of the dataset and the splits
+    # Define arguments and folders
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
@@ -607,14 +615,19 @@ if __name__ == "__main__":
     val_dir = dataset + "/validation/"
     test_dir = dataset + "/test/"
 
+    # Creat folders and generate files
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
 
-    print("Starting evaluation data creation...")
+    print("Starting validation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
     create_data(0, int(train_size * val_split), val_dir)
 
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
     create_data(0, int(train_size * test_split), test_dir)
+
+    # Print run time
+    end_time = time.time()
+    print("Data generaion took " + str(round(end_time - start_time)) + " seconds")

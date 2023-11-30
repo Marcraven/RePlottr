@@ -1,13 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.transforms import Bbox
 import random
 import os
 import sys
 
 
 ##### Define constants #####
-train_size = 100
+train_size = 8
 val_split = 0.125
 test_split = 0.125
 
@@ -499,9 +498,9 @@ def create_data(start, end, folder):
 
         # Standardise pixel coordinates to (0,1)
         x_ticks_x_coord_std = x_ticks_x_coord_pixel / fig_width
-        x_ticks_y_coord_std = x_ticks_y_coord_pixel_flip / fig_height + 0.04
+        x_ticks_y_coord_std = x_ticks_y_coord_pixel_flip / fig_height + 0.05
 
-        y_ticks_x_coord_std = y_ticks_x_coord_pixel / fig_width - 0.055
+        y_ticks_x_coord_std = y_ticks_x_coord_pixel / fig_width - 0.05
         y_ticks_y_coord_std = y_ticks_y_coord_pixel_flip / fig_height
 
         # Create additional rows to Yolo output
@@ -584,7 +583,7 @@ if __name__ == "__main__":
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
 
-    print("Starting evaluation data creation...")
+    print("Starting validation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
     create_data(0, int(train_size * val_split), val_dir)
 
