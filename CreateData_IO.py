@@ -5,10 +5,11 @@ import random
 import os
 import sys
 import json
+import time
 
 
 ##### Define constants #####
-train_size = 20
+train_size = 80
 val_split = 0.125
 test_split = 0.125
 
@@ -596,9 +597,13 @@ def create_data(start, end, folder):
 
 ##### If name = main #####
 if __name__ == "__main__":
+    # Record start time
+    start_time = time.time()
+
+    # Turn interactive mode off
     plt.ioff()
 
-    ### Here we define the size of the dataset and the splits
+    # Define arguments and folders
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
@@ -607,6 +612,7 @@ if __name__ == "__main__":
     val_dir = dataset + "/validation/"
     test_dir = dataset + "/test/"
 
+    # Creat folders and generate files
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
@@ -618,3 +624,7 @@ if __name__ == "__main__":
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
     create_data(0, int(train_size * test_split), test_dir)
+
+    # Print run time
+    end_time = time.time()
+    print("Data generaion took " + str(round(end_time - start_time)) + " seconds")

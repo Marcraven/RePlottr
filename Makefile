@@ -38,4 +38,7 @@ io_dataset:
 	python CreateData_IO.py
 
 box:
-	python utils/utils.py
+	python utils/draw_box.py
+
+boxes:
+	python utils/draw_boxes.py

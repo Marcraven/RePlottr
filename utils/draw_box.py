@@ -1,8 +1,7 @@
 import numpy as np
 import cv2
-import os, os.path
-import pathlib
 
+##### Colour inputs #####
 colors = [
     (255, 0, 0),  # Red
     (0, 255, 0),  # Green
@@ -32,16 +31,18 @@ colors = [
 ]
 
 
+##### Draw boxes on one single image #####
 def draw_boxes(
-    source_path: str = "ObjectRecognition/yolo/dataset/train/0000",
-    save_path: str = "ObjectRecognition/yolo/dataset/train/0000",
+    file_name: str = "0000",
+    source_path: str = "ObjectRecognition/yolo/dataset/train/",
+    save_path: str = "ObjectRecognition/yolo/dataset/train/",
 ):
     # Read TXT files and split the lines
-    with open(source_path + ".txt", "r") as file:
+    with open(source_path + file_name + ".txt", "r") as file:
         file_contents = file.read().splitlines()
 
     # Read JPG files and save contents and pixels
-    img = cv2.imread(source_path + ".jpg")
+    img = cv2.imread(source_path + file_name + ".jpg")
     x_pix = img.shape[1]
     y_pix = img.shape[0]
 
@@ -62,12 +63,13 @@ def draw_boxes(
         )
 
     # Write output image
-    cv2.imwrite(save_path + "_boxed.jpg", img)
+    cv2.imwrite(save_path + file_name + "_boxed.jpg", img)
 
 
-# If name = main
+##### If name = main #####
 if __name__ == "__main__":
-    source_path = "ObjectRecognition/yolo/dataset/train/0000"
-    save_path = "ObjectRecognition/yolo/dataset/train/0000"
+    file_name = "0000"
+    source_path = "ObjectRecognition/yolo/dataset/train/"
+    save_path = "ObjectRecognition/yolo/dataset/train/"
 
-    draw_boxes(source_path, save_path)
+    draw_boxes(file_name, source_path, save_path)
