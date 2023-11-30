@@ -498,9 +498,9 @@ def create_data(start, end, folder):
 
         # Standardise pixel coordinates to (0,1)
         x_ticks_x_coord_std = x_ticks_x_coord_pixel / fig_width
-        x_ticks_y_coord_std = x_ticks_y_coord_pixel_flip / fig_height + 0.04
+        x_ticks_y_coord_std = x_ticks_y_coord_pixel_flip / fig_height + 0.05
 
-        y_ticks_x_coord_std = y_ticks_x_coord_pixel / fig_width - 0.055
+        y_ticks_x_coord_std = y_ticks_x_coord_pixel / fig_width - 0.05
         y_ticks_y_coord_std = y_ticks_y_coord_pixel_flip / fig_height
 
         # Create additional rows to Yolo output
