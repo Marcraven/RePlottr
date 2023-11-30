@@ -8,8 +8,8 @@ import sys
 
 ##### Define constants #####
 train_size = 100
-val_split = 0.125
-test_split = 0.125
+val_split = 0.2
+test_split = 0.2
 
 labels = [
     "Length [nm]",
@@ -395,8 +395,8 @@ def create_data(start, end, folder):
         # Generate random data
         xlim = np.random.randint(low=0, high=1000, size=1)
         ylim = np.random.randint(low=0, high=1000, size=1)
-        num_series = 1  # np.random.randint(1, 1)
-        num_points = np.random.randint(10, 40)
+        num_series = 6  # np.random.randint(1, 1)
+        num_points = np.random.randint(10, 100)
 
         # Create an empty list to store series data
         series = []
