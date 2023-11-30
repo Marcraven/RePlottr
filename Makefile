@@ -13,7 +13,7 @@ donut_dataset:
 	python CreateData_Donut.py
 
 train_donut:
-	python TextRecognition/DonutApproach/train.py --config TextRecognition/DonutApproach/config/train_cord.yaml --exp_version "test_experiment"
+	python donut-master/train.py --config donut-master/config/train_plot.yaml --exp_version "test_experiment"
 
 clean_yolo_dataset:
 	rm -rf ObjectRecognition/yolo/dataset/*

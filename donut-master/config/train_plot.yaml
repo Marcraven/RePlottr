@@ -16,7 +16,7 @@ num_workers: 8
 val_check_interval: 1.0
 gradient_clip_val: 1.0
 verbose: True
-dataset_name_or_paths: ["./dataset"]
+dataset_name_or_paths: ["donut-master/dataset"]
 train_batch_sizes: [1]
 check_val_every_n_epoch: 10
 max_steps: -1 # infinite, since max_epochs is specified

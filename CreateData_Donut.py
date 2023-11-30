@@ -477,7 +477,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
-    dataset = "./TextRecognition/DonutApproach/dataset"  # f'./Dataset_{train_size}_' + str(val_split).replace(".", "") +'_' + str(test_split).replace(".", "")
+    dataset = "./donut-master/dataset"  # f'./Dataset_{train_size}_' + str(val_split).replace(".", "") +'_' + str(test_split).replace(".", "")
     train_dir = dataset + "/train/"
     val_dir = dataset + "/validation/"
     test_dir = dataset + "/test/"
