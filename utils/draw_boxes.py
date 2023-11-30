@@ -5,8 +5,8 @@ import os, os.path
 
 ##### Draw boxes on all  images found in source folder and save them in save folder #####
 def draw_boxes_all_files(
-    source_path: str = "ObjectRecognition/yolo/dataset/train/",
-    save_path: str = "ObjectRecognition/yolo/dataset/train/boxed/",
+    source_path: str = os.environ.get("SOURCE_PATH"),
+    save_path: str = os.environ.get("SAVE_PATH"),
 ):
     # Create list with JPG files in source folder
     jpg_file_list = [file for file in os.listdir(source_path) if file.endswith(".jpg")]
@@ -22,12 +22,11 @@ def draw_boxes_all_files(
 
 ##### If name = main #####
 if __name__ == "__main__":
-    train_folder = "ObjectRecognition/yolo/dataset/train/"
-    boxed_folder = train_folder + "boxed/"
+    boxed_folder = os.environ.get("SAVE_PATH")
 
     print("Creating boxed files")
     os.makedirs(boxed_folder, exist_ok=True) if not os.path.exists(
         boxed_folder
     ) else None
 
-    draw_boxes_all_files(train_folder, boxed_folder)
+    draw_boxes_all_files()

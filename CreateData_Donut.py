@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.transforms import Bbox
 import random
 import os
 import sys
@@ -525,7 +524,7 @@ if __name__ == "__main__":
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
     create_data(0, train_size, train_dir)
 
-    print("Starting evaluation data creation...")
+    print("Starting validation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
     create_data(0, int(train_size * val_split), val_dir)
 

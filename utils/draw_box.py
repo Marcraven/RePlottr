@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import os, os.path
 
 ##### Colour inputs #####
 colors = [
@@ -34,8 +35,8 @@ colors = [
 ##### Draw boxes on one single image #####
 def draw_boxes(
     file_name: str = "0000",
-    source_path: str = "ObjectRecognition/yolo/dataset/train/",
-    save_path: str = "ObjectRecognition/yolo/dataset/train/",
+    source_path: str = os.environ.get("SOURCE_PATH"),
+    save_path: str = os.environ.get("SAVE_PATH"),
 ):
     # Read TXT files and split the lines
     with open(source_path + file_name + ".txt", "r") as file:
@@ -68,8 +69,11 @@ def draw_boxes(
 
 ##### If name = main #####
 if __name__ == "__main__":
-    file_name = "0000"
-    source_path = "ObjectRecognition/yolo/dataset/train/"
-    save_path = "ObjectRecognition/yolo/dataset/train/"
+    boxed_folder = os.environ.get("SAVE_PATH")
 
-    draw_boxes(file_name, source_path, save_path)
+    print("Creating boxed files")
+    os.makedirs(boxed_folder, exist_ok=True) if not os.path.exists(
+        boxed_folder
+    ) else None
+
+    draw_boxes()  # file_name=file_name, source_path=train_folder, save_path=boxed_folder)
