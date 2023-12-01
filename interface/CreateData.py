@@ -5,30 +5,25 @@ import os
 import sys
 import json
 import time
+from params import (
+    TRAIN_SIZE,
+    VAL_SPLIT,
+    TEST_SPLIT,
+    XLIM_LOW,
+    XLIM_HIGH,
+    YLIM_LOW,
+    YLIM_HIGH,
+    NUM_SERIES_MIN,
+    NUM_SERIES_MAX,
+    NUM_POINTS_MIN,
+    NUM_POINTS_MAX,
+    START_INDEX,
+    FIGSIZE_WIDTH,
+    FIGSIZE_HEIGHT,
+    FIGSIZE_DPI,
+)
 
-
-##### Define and import constants #####
-train_size = int(os.environ.get("TRAIN_SIZE", 100))
-val_split = float(os.environ.get("VAL_SPLIT", 0.125))
-test_split = float(os.environ.get("TEST_SPLIT", 0.125))
-
-xlim_low = int(os.environ.get("XLIM_LOW", 0))
-xlim_high = int(os.environ.get("XLIM_HIGH", 1_000))
-ylim_low = int(os.environ.get("YLIM_LOW", 0))
-ylim_high = int(os.environ.get("YLIM_HIGH", 1_000))
-
-num_series_min = int(os.environ.get("NUM_SERIES_MIN", 1))
-num_series_max = int(os.environ.get("NUM_SERIES_MAX", 1))
-
-num_points_min = int(os.environ.get("NUM_POINTS_MIN", 10))
-num_points_max = int(os.environ.get("NUM_POINTS_MAX", 40))
-
-start_index = int(os.environ.get("START_INDEX", 0))
-
-figsize_width = float(os.environ.get("FIGSIZE_WIDTH", 3.2))
-figsize_heigh = float(os.environ.get("FIGSIZE_HEIGHT", 2.4))
-figsize_dpi = int(os.environ.get("FIGSIZE_DPI", 100))
-
+##### Define constants ####
 labels = [
     "Length [nm]",
     "Size [um]",
@@ -411,14 +406,14 @@ def create_data(start, end, folder):
     metadata_list = []
     for j in range(start, end):
         # Generate random data
-        xlim = np.random.randint(low=xlim_low, high=xlim_high, size=1)
-        ylim = np.random.randint(low=ylim_low, high=ylim_high, size=1)
+        xlim = np.random.randint(low=XLIM_LOW, high=XLIM_HIGH, size=1)
+        ylim = np.random.randint(low=YLIM_LOW, high=YLIM_HIGH, size=1)
         num_series = (
-            num_series_min
-            if num_series_min == num_series_max
-            else np.random.randint(num_series_min, num_series_max)
+            NUM_SERIES_MIN
+            if NUM_SERIES_MIN == NUM_SERIES_MAX
+            else np.random.randint(NUM_SERIES_MIN, NUM_SERIES_MAX)
         )
-        num_points = np.random.randint(num_points_min, num_points_max)
+        num_points = np.random.randint(NUM_POINTS_MIN, NUM_POINTS_MAX)
 
         # Create an empty list to store series data
         series = []
@@ -426,9 +421,9 @@ def create_data(start, end, folder):
         # Define figure and ax
         background_color = random.choice(background_colors)
         fig, ax = plt.subplots(
-            figsize=(figsize_width, figsize_heigh),
+            figsize=(FIGSIZE_WIDTH, FIGSIZE_HEIGHT),
             facecolor=background_color,
-            dpi=figsize_dpi,
+            dpi=FIGSIZE_DPI,
         )
 
         # Generate and plot random data for each series
@@ -473,7 +468,7 @@ def create_data(start, end, folder):
         # Save the plot with smaller margins
         fig.savefig(
             fname + ".jpg",
-            dpi=figsize_dpi,
+            dpi=FIGSIZE_DPI,
         )
 
         # Obtain ticks data
@@ -637,7 +632,7 @@ if __name__ == "__main__":
 
     # Define arguments and folders
     if len(sys.argv) > 1:
-        train_size = int(sys.argv[1])
+        TRAIN_SIZE = int(sys.argv[1])
 
     data_dir = "./data"
     train_dir = data_dir + "/train/"
@@ -647,15 +642,15 @@ if __name__ == "__main__":
     # Creat folders and generate files
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
-    create_data(start_index, start_index + train_size, train_dir)
+    create_data(START_INDEX, START_INDEX + TRAIN_SIZE, train_dir)
 
     print("Starting validation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
-    create_data(start_index, start_index + int(train_size * val_split), val_dir)
+    create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * VAL_SPLIT), val_dir)
 
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
-    create_data(start_index, start_index + int(train_size * test_split), test_dir)
+    create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * TEST_SPLIT), test_dir)
 
     # Print run time
     end_time = time.time()

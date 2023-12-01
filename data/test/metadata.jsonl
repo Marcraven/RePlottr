@@ -1,0 +1,2 @@
+{"file_name": "0000.jpg", "ground_truth": "{\"gt_parse\": {\"title\": \"Dazzling Kingdom\", \"x_label\": \"Density [g/cm^3]\", \"x_ticks\": [0.0, 50.0, 100.0, 150.0], \"y_label\": \"Distance [m]\", \"y_ticks\": [0.0, 200.0, 400.0, 600.0, 800.0]}}"}
+{"file_name": "0001.jpg", "ground_truth": "{\"gt_parse\": {\"title\": \"Candid Mountain\", \"x_label\": \"Time [s]\", \"x_ticks\": [0.0, 100.0, 200.0], \"y_label\": \"Frequency [Hz]\", \"y_ticks\": [0.0, 100.0, 200.0, 300.0]}}"}
