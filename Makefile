@@ -6,14 +6,8 @@ streamlit:
 install_requirements:
 	@pip install -r requirements.txt
 
-clean_donut_dataset:
-	rm -rf TextRecognition/DonutApproach/dataset/*
-
-donut_dataset:
-	python CreateData_Donut.py
-
-train_donut:
-	python TextRecognition/DonutApproach/train.py --config TextRecognition/DonutApproach/config/train_cord.yaml --exp_version "test_experiment"
+train_yolo:
+	python ObjectRecognition/train_yolo.py
 
 clean_yolo_dataset:
 	rm -rf ObjectRecognition/yolo/dataset/*
@@ -22,10 +16,13 @@ yolo_dataset:
 	python CreateData_Yolo.py
 
 clean_io_dataset:
-	rm -rf dataset/*
+	rm -rf datas/*
 
 io_dataset:
-	python CreateData_IO.py
+	python interface/CreateData_IO.py
 
-train_yolo:
-	python	ObjectRecognition/train_yolo.py
+box:
+	python ml_logic/yolo/utils/draw_box.py
+
+boxes:
+	python ml_logic/yolo/utils/draw_boxes.py
