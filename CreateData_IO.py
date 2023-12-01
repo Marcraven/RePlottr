@@ -396,8 +396,8 @@ def create_data(start, end, folder):
         # Generate random data
         xlim = np.random.randint(low=0, high=1000, size=1)
         ylim = np.random.randint(low=0, high=1000, size=1)
-        num_series = 1  # np.random.randint(1, 1)
-        num_points = np.random.randint(10, 40)
+        num_series = 5  # np.random.randint(3, 5)
+        num_points = np.random.randint(30, 50)
 
         # Create an empty list to store series data
         series = []
