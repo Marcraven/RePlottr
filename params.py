@@ -2,11 +2,11 @@ import os
 
 
 ##### Imports from .env ######
-# COMET_API = os.environ["COMET_API"]
-# COMET_API_KEY = os.environ["COMET_API_KEY"]
-# WORKSPACE = os.environ["WORKSPACE"]
-# MODEL_NAME = os.environ["MODEL_NAME"]
-# COMET_PROJECT_NAME = os.environ["COMET_PROJECT_NAME"]
+COMET_API = os.environ["COMET_API"]
+COMET_API_KEY = os.environ["COMET_API_KEY"]
+WORKSPACE = os.environ["WORKSPACE"]
+MODEL_NAME = os.environ["MODEL_NAME"]
+COMET_PROJECT_NAME = os.environ["COMET_PROJECT_NAME"]
 
 
 ##### Train data ######
