@@ -7,10 +7,27 @@ import json
 import time
 
 
-##### Define constants #####
+##### Define and import constants #####
 train_size = int(os.environ.get("TRAIN_SIZE", 100))
 val_split = float(os.environ.get("VAL_SPLIT", 0.125))
 test_split = float(os.environ.get("TEST_SPLIT", 0.125))
+
+xlim_low = int(os.environ.get("XLIM_LOW", 0))
+xlim_high = int(os.environ.get("XLIM_HIGH", 1_000))
+ylim_low = int(os.environ.get("YLIM_LOW", 0))
+ylim_high = int(os.environ.get("YLIM_HIGH", 1_000))
+
+num_series_min = int(os.environ.get("NUM_SERIES_MIN", 1))
+num_series_max = int(os.environ.get("NUM_SERIES_MAX", 1))
+
+num_points_min = int(os.environ.get("NUM_POINTS_MIN", 10))
+num_points_max = int(os.environ.get("NUM_POINTS_MAX", 40))
+
+start_index = int(os.environ.get("START_INDEX", 0))
+
+figsize_width = float(os.environ.get("FIGSIZE_WIDTH", 3.2))
+figsize_heigh = float(os.environ.get("FIGSIZE_HEIGHT", 2.4))
+figsize_dpi = int(os.environ.get("FIGSIZE_DPI", 100))
 
 labels = [
     "Length [nm]",
@@ -394,16 +411,20 @@ def create_data(start, end, folder):
     metadata_list = []
     for j in range(start, end):
         # Generate random data
-        xlim = np.random.randint(low=0, high=1000, size=1)
-        ylim = np.random.randint(low=0, high=1000, size=1)
-        num_series = 1  # np.random.randint(1, 1)
-        num_points = np.random.randint(10, 40)
+        xlim = np.random.randint(low=xlim_low, high=xlim_high, size=1)
+        ylim = np.random.randint(low=ylim_low, high=ylim_high, size=1)
+        num_series = (
+            num_series_min
+            if num_series_min == num_series_max
+            else np.random.randint(num_series_min, num_series_max)
+        )
+        num_points = np.random.randint(num_points_min, num_points_max)
 
         # Create an empty list to store series data
         series = []
 
         # Generate and plot random data for each series
-        fig, ax = plt.subplots(figsize=(3.2, 2.4), dpi=100)
+        fig, ax = plt.subplots(figsize=(figsize_width, figsize_heigh), dpi=figsize_dpi)
 
         for i in range(num_series):
             # Create series
@@ -439,13 +460,14 @@ def create_data(start, end, folder):
         fig.tight_layout()
 
         # Create file names
+
         fname = folder + str(j).zfill(4)
 
         # Save the plot with smaller margins
         fig.savefig(
             fname + ".jpg",
-            dpi=100,
-        )  # bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
+            dpi=figsize_dpi,
+        )
 
         # Obtain ticks data
         x_ticks_data = ax.get_xticks()
@@ -518,12 +540,12 @@ def create_data(start, end, folder):
         # Standardise pixel coordinates to (0,1)
         x_ticks_x_coord_std = x_ticks_x_coord_pixel / fig_width
         x_ticks_y_coord_std = (
-            x_ticks_y_coord_pixel_flip / fig_height + 0.05
-        )  # Note manual adjustment
+            x_ticks_y_coord_pixel_flip / fig_height + 0.05  # Note manual adjustment
+        )
 
         y_ticks_x_coord_std = (
-            y_ticks_x_coord_pixel / fig_width - 0.05
-        )  # Note manual adjustment
+            y_ticks_x_coord_pixel / fig_width - 0.05  # Note manual adjustment
+        )
         y_ticks_y_coord_std = y_ticks_y_coord_pixel_flip / fig_height
 
         # Create additional rows to Yolo output
@@ -618,15 +640,15 @@ if __name__ == "__main__":
     # Creat folders and generate files
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
-    create_data(0, train_size, train_dir)
+    create_data(start_index, train_size, train_dir)
 
     print("Starting validation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
-    create_data(0, int(train_size * val_split), val_dir)
+    create_data(start_index, int(train_size * val_split), val_dir)
 
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
-    create_data(0, int(train_size * test_split), test_dir)
+    create_data(start_index, int(train_size * test_split), test_dir)
 
     # Print run time
     end_time = time.time()
