@@ -20,3 +20,12 @@ clean_yolo_dataset:
 
 yolo_dataset:
 	python CreateData_Yolo.py
+
+clean_io_dataset:
+	rm -rf dataset/*
+
+io_dataset:
+	python CreateData_IO.py
+
+train_yolo:
+	python	ObjectRecognition/train_yolo.py
