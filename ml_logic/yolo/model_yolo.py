@@ -7,12 +7,11 @@ import ultralytics
 from ultralytics import YOLO
 from ultralytics.engine.results import save_one_box
 import comet_ml
-from params import *
 
 currentdir = os.path.dirname(os.path.abspath(__file__)) + "/"
-workspace = WORKSPACE
-model_name = MODEL_NAME
-project = COMET_PROJECT_NAME
+workspace = os.environ["WORKSPACE"]
+model_name = os.environ["MODEL_NAME"]
+project = os.environ["COMET_PROJECT_NAME"]
 
 
 class yolo_model:
