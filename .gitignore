@@ -1,7 +1,6 @@
 # Current result and data folders
 TextRecognition/
 ObjectRecognition/
-data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
