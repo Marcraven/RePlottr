@@ -6,14 +6,11 @@ streamlit:
 install_requirements:
 	@pip install -r requirements.txt
 
-clean_io_dataset:
-	rm -rf data/*
+data:
+	python interface/CreateData.py
 
-io_dataset:
-	python interface/CreateData_IO.py
+clean_data:
+	rm -rf /data/*
 
-box:
-	python ml_logic/yolo/utils/draw_box.py
-
-boxes:
-	python ml_logic/yolo/utils/draw_boxes.py
+train_yolo:
+	python ml_logic/yolo/model_yolo.py
