@@ -1,7 +1,10 @@
 default: install_requirements
 
 streamlit:
-	@streamlit run frontend/app.py
+	@streamlit run interface/app.py
+
+streamlit_bw:
+	@streamlit run interface/app_bw.py
 
 install_requirements:
 	@pip install -r requirements.txt
