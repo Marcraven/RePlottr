@@ -368,22 +368,19 @@ markers = [
     "d",
 ]
 
-colors = [
-    "b",
+dot_colors = [
+    "b",  # Single-letter abbreviations for basic colors
     "g",
     "r",
     "c",
     "m",
-    "y",
-    "k",  # Single-letter abbreviations for basic colors
-    "blue",
+    "k",
+    "blue",  # Full color names
     "green",
     "red",
     "cyan",
     "magenta",
-    "yellow",
     "black",
-    "white",  # Full color names
     "skyblue",
     "tomato",
     "gold",
@@ -391,14 +388,17 @@ colors = [
     "lime",
     "orange",
     "pink",
-    "brown",  # Some named colors
-    "#FF5733",
+    "brown",
+    "gray",
+    "#FF5733",  # Hexadecimal color values
     "#33FF57",
-    "#5733FF",  # Hexadecimal color values
-    (0.1, 0.2, 0.3),
+    "#5733FF",
+    (0.1, 0.2, 0.3),  # RGB tuples
     (0.4, 0.5, 0.6),
-    (0.7, 0.8, 0.9),  # RGB tuples
+    (0.7, 0.8, 0.9),
 ]
+
+background_colors = ["white", "#F5F5F5", "#D3D3D3"]
 
 
 ##### Define data creation function #####
@@ -423,9 +423,15 @@ def create_data(start, end, folder):
         # Create an empty list to store series data
         series = []
 
-        # Generate and plot random data for each series
-        fig, ax = plt.subplots(figsize=(figsize_width, figsize_heigh), dpi=figsize_dpi)
+        # Define figure and ax
+        background_color = random.choice(background_colors)
+        fig, ax = plt.subplots(
+            figsize=(figsize_width, figsize_heigh),
+            facecolor=background_color,
+            dpi=figsize_dpi,
+        )
 
+        # Generate and plot random data for each series
         for i in range(num_series):
             # Create series
             name = random.choice(legends)
@@ -443,7 +449,7 @@ def create_data(start, end, folder):
                 y=y_data,
                 label=name,
                 marker=marker,
-                color=random.choice(colors),
+                color=random.choice(dot_colors),
             )
 
         # Add legend
@@ -456,6 +462,7 @@ def create_data(start, end, folder):
         ax.set_ylabel(y_label)
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
         ax.set_title(plot_title)
+        ax.set_facecolor(background_color)
 
         fig.tight_layout()
 
@@ -632,23 +639,23 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         train_size = int(sys.argv[1])
 
-    dataset = "./dataset"
-    train_dir = dataset + "/train/"
-    val_dir = dataset + "/validation/"
-    test_dir = dataset + "/test/"
+    data_dir = "./data"
+    train_dir = data_dir + "/train/"
+    val_dir = data_dir + "/validation/"
+    test_dir = data_dir + "/test/"
 
     # Creat folders and generate files
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
-    create_data(start_index, train_size, train_dir)
+    create_data(start_index, start_index + train_size, train_dir)
 
     print("Starting validation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
-    create_data(start_index, int(train_size * val_split), val_dir)
+    create_data(start_index, start_index + int(train_size * val_split), val_dir)
 
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
-    create_data(start_index, int(train_size * test_split), test_dir)
+    create_data(start_index, start_index + int(train_size * test_split), test_dir)
 
     # Print run time
     end_time = time.time()

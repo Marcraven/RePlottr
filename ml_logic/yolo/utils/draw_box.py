@@ -32,11 +32,17 @@ colors = [
 ]
 
 
+##### Define and import constants #####
+file_name = "0000"
+source_path = os.environ.get("SOURCE_PATH")
+save_path = os.environ.get("SAVE_PATH")
+
+
 ##### Draw boxes on one single image #####
 def draw_boxes(
-    file_name: str = "0000",
-    source_path: str = os.environ.get("SOURCE_PATH"),
-    save_path: str = os.environ.get("SAVE_PATH"),
+    file_name: str = file_name,
+    source_path: str = source_path,
+    save_path: str = save_path,
 ):
     # Read TXT files and split the lines
     with open(source_path + file_name + ".txt", "r") as file:

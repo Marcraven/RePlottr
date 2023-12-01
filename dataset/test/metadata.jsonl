@@ -1,2 +1,0 @@
-{"file_name": "0000.jpg", "ground_truth": "{\"gt_parse\": {\"title\": \"Fierce Courage\", \"x_label\": \"Resistance [ohm]\", \"x_ticks\": [0.0, 200.0, 400.0], \"y_label\": \"Time [s]\", \"y_ticks\": [50.0, 100.0, 150.0]}}"}
-{"file_name": "0001.jpg", "ground_truth": "{\"gt_parse\": {\"title\": \"Energetic Bicycle\", \"x_label\": \"Speed [m/s]\", \"x_ticks\": [0.0, 200.0, 400.0, 600.0, 800.0], \"y_label\": \"Pressure [Pa]\", \"y_ticks\": [0.0, 200.0, 400.0]}}"}
