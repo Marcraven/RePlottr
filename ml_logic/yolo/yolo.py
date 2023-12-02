@@ -14,7 +14,7 @@ model_name = os.environ["MODEL_NAME"]
 project = os.environ["COMET_PROJECT_NAME"]
 
 
-class yolo_model:
+class YoloModel:
     def __init__(self, initial_weights_path=currentdir + "best.pt") -> None:
         self.weights = initial_weights_path
 
@@ -48,7 +48,7 @@ class yolo_model:
         yolo = self.load()
         results = yolo.predict(
             scatterpath,
-            save=True,
+            save=False,
             imgsz=320,
             # save_txt=True,
             # save_conf=True,
@@ -61,23 +61,14 @@ class yolo_model:
         for d in results[0].boxes:
             if d.data[:, -1] == 0:
                 x_tick_box.append(
-                    save_one_box(
-                        d.xyxy,
-                        results[0].orig_img,
-                        save=False,
-                    )
+                    save_one_box(d.xyxy, results[0].orig_img, save=False, gain=0.8)
                 )
             if d.data[:, -1] == 1:
                 y_tick_box.append(
-                    save_one_box(
-                        d.xyxy,
-                        results[0].orig_img,
-                        save=False,
-                    )
+                    save_one_box(d.xyxy, results[0].orig_img, save=False, gain=0.8)
                 )
         results[0].boxes.data
-        breakpoint()
-        return results[0].boxes.data.cpu().numpy(), x_tick_box, y_tick_box
+        return results[0].boxes.data, x_tick_box, y_tick_box
 
     def load(self) -> YOLO:
         """This function loads the YOLO model given by the path initialized
