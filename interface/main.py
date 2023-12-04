@@ -1,5 +1,6 @@
 from ml_logic.yolo.yolo import YoloModel
 from ml_logic.ocr.ocr import image_read
+from ml_logic.merge import merge
 import matplotlib.pyplot as plt
 import pytesseract
 import cv2
@@ -24,7 +25,7 @@ for j, box in enumerate(output[2]):
     plt.subplot(2, columns, j + i + 2)
     plt.imshow(box)
     plt.xlabel(y_ticks_values[j])
-
+# merge(output[0], x_ticks_values, y_ticks_values)
 
 print(x_ticks_values)
 print(y_ticks_values)

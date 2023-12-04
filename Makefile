@@ -9,7 +9,7 @@ streamlit_bw:
 install_requirements:
 	@pip install -r requirements.txt
 
-data:
+create_data:
 	python interface/CreateData.py
 
 clean_data:
