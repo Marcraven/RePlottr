@@ -1,12 +1,13 @@
 import numpy as np
-from utils.draw_box import draw_boxes
+from ml_logic.yolo.utils.draw_box import draw_boxes
 import os, os.path
+from params import SOURCE_PATH, SAVE_PATH
 
 
 ##### Draw boxes on all  images found in source folder and save them in save folder #####
 def draw_boxes_all_files(
-    source_path: str = os.environ.get("SOURCE_PATH"),
-    save_path: str = os.environ.get("SAVE_PATH"),
+    source_path: str = SOURCE_PATH,
+    save_path: str = SAVE_PATH,
 ):
     # Create list with JPG files in source folder
     jpg_file_list = [file for file in os.listdir(source_path) if file.endswith(".jpg")]
@@ -22,11 +23,7 @@ def draw_boxes_all_files(
 
 ##### If name = main #####
 if __name__ == "__main__":
-    boxed_folder = os.environ.get("SAVE_PATH")
-
     print("Creating boxed files")
-    os.makedirs(boxed_folder, exist_ok=True) if not os.path.exists(
-        boxed_folder
-    ) else None
+    os.makedirs(SAVE_PATH, exist_ok=True) if not os.path.exists(SAVE_PATH) else None
 
     draw_boxes_all_files()

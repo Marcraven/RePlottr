@@ -1,8 +1,11 @@
 import numpy as np
 import cv2
 import os, os.path
+from params import SOURCE_PATH, SAVE_PATH
 
-##### Colour inputs #####
+##### Define and import constants #####
+file_name = "0000"
+
 colors = [
     (255, 0, 0),  # Red
     (0, 255, 0),  # Green
@@ -18,7 +21,6 @@ colors = [
     (0, 128, 128),  # Teal
     (255, 165, 0),  # Orange
     (128, 128, 128),  # Gray
-    (255, 255, 255),  # White
     (0, 0, 0),  # Black
     (255, 192, 203),  # Pink
     (255, 140, 0),  # Dark Orange
@@ -34,9 +36,9 @@ colors = [
 
 ##### Draw boxes on one single image #####
 def draw_boxes(
-    file_name: str = "0000",
-    source_path: str = os.environ.get("SOURCE_PATH"),
-    save_path: str = os.environ.get("SAVE_PATH"),
+    file_name: str = file_name,
+    source_path: str = SOURCE_PATH,
+    save_path: str = SAVE_PATH,
 ):
     # Read TXT files and split the lines
     with open(source_path + file_name + ".txt", "r") as file:
@@ -69,11 +71,7 @@ def draw_boxes(
 
 ##### If name = main #####
 if __name__ == "__main__":
-    boxed_folder = os.environ.get("SAVE_PATH")
-
     print("Creating boxed files")
-    os.makedirs(boxed_folder, exist_ok=True) if not os.path.exists(
-        boxed_folder
-    ) else None
+    os.makedirs(SAVE_PATH, exist_ok=True) if not os.path.exists(SAVE_PATH) else None
 
-    draw_boxes()  # file_name=file_name, source_path=train_folder, save_path=boxed_folder)
+    draw_boxes()

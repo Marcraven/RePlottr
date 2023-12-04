@@ -9,11 +9,11 @@ streamlit_bw:
 install_requirements:
 	@pip install -r requirements.txt
 
-create_data:
+data_please:
 	python interface/CreateData.py
 
 clean_data:
-	rm -rf /data/*
+	rm -rf data
 
 train_yolo:
 	python ml_logic/yolo/model_yolo.py

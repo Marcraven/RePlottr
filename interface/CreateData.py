@@ -1,17 +1,27 @@
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import random
 import os
 import sys
 import json
 import time
+from params import (
+    TRAIN_SIZE,
+    VAL_SPLIT,
+    TEST_SPLIT,
+    XLIM_LOW,
+    XLIM_HIGH,
+    YLIM_LOW,
+    YLIM_HIGH,
+    NUM_SERIES_MIN,
+    NUM_SERIES_MAX,
+    NUM_POINTS_MIN,
+    NUM_POINTS_MAX,
+    START_INDEX,
+)
 
-
-##### Define constants #####
-train_size = int(os.environ.get("TRAIN_SIZE", 100))
-val_split = float(os.environ.get("VAL_SPLIT", 0.125))
-test_split = float(os.environ.get("TEST_SPLIT", 0.125))
-
+##### Define constants ####
 labels = [
     "Length [nm]",
     "Size [um]",
@@ -351,22 +361,19 @@ markers = [
     "d",
 ]
 
-colors = [
-    "b",
+dot_colors = [
+    "b",  # Single-letter abbreviations for basic colors
     "g",
     "r",
     "c",
     "m",
-    "y",
-    "k",  # Single-letter abbreviations for basic colors
-    "blue",
+    "k",
+    "blue",  # Full color names
     "green",
     "red",
     "cyan",
     "magenta",
-    "yellow",
     "black",
-    "white",  # Full color names
     "skyblue",
     "tomato",
     "gold",
@@ -374,14 +381,24 @@ colors = [
     "lime",
     "orange",
     "pink",
-    "brown",  # Some named colors
-    "#FF5733",
+    "brown",
+    "gray",
+    "#FF5733",  # Hexadecimal color values
     "#33FF57",
-    "#5733FF",  # Hexadecimal color values
-    (0.1, 0.2, 0.3),
+    "#5733FF",
+    (0.1, 0.2, 0.3),  # RGB tuples
     (0.4, 0.5, 0.6),
-    (0.7, 0.8, 0.9),  # RGB tuples
+    (0.7, 0.8, 0.9),
 ]
+
+figsize_widths = [3.2, 4.8, 6.4]
+figsize_heights = [2.4, 3.2, 4.8]
+background_colors = ["white", "#F5F5F5", "#D3D3D3"]
+fig_dpis = [100, 200, 300]
+
+font_types = ["DejaVu Sans", "sans-serif", "serif"]
+font_styles = ["normal", "italic", "oblique"]
+font_weights = ["normal", "bold", "light"]
 
 
 ##### Define data creation function #####
@@ -394,17 +411,40 @@ def create_data(start, end, folder):
     metadata_list = []
     for j in range(start, end):
         # Generate random data
-        xlim = np.random.randint(low=0, high=1000, size=1)
-        ylim = np.random.randint(low=0, high=1000, size=1)
-        num_series = 5  # np.random.randint(3, 5)
-        num_points = np.random.randint(30, 50)
+        xlim = np.random.randint(low=XLIM_LOW, high=XLIM_HIGH, size=1)
+        ylim = np.random.randint(low=YLIM_LOW, high=YLIM_HIGH, size=1)
+        num_series = (
+            NUM_SERIES_MIN
+            if NUM_SERIES_MIN == NUM_SERIES_MAX
+            else np.random.randint(NUM_SERIES_MIN, NUM_SERIES_MAX)
+        )
+        num_points = np.random.randint(NUM_POINTS_MIN, NUM_POINTS_MAX)
 
         # Create an empty list to store series data
         series = []
 
-        # Generate and plot random data for each series
-        fig, ax = plt.subplots(figsize=(3.2, 2.4), dpi=100)
+        # Define text properties
+        font_type = random.choice(font_types)
+        font_style = random.choice(font_styles)
+        font_weight = random.choice(font_weights)
 
+        font = {"family": font_type, "style": font_style, "weight": font_weight}
+        mpl.rc("font", **font)
+
+        # Define figure size, backgroun colour and dpi
+        figsize_width = random.choice(figsize_widths)
+        figsize_height = random.choice(figsize_heights)
+        background_color = random.choice(background_colors)
+        dpi = random.choice(fig_dpis)
+
+        # Define figure and ax
+        fig, ax = plt.subplots(
+            figsize=(figsize_width, figsize_height),  # fig_size,
+            facecolor=background_color,
+            dpi=dpi,
+        )
+
+        # Generate and plot random data for each series
         for i in range(num_series):
             # Create series
             name = random.choice(legends)
@@ -422,7 +462,7 @@ def create_data(start, end, folder):
                 y=y_data,
                 label=name,
                 marker=marker,
-                color=random.choice(colors),
+                color=random.choice(dot_colors),
             )
 
         # Add legend
@@ -434,18 +474,20 @@ def create_data(start, end, folder):
         ax.set_xlabel(x_label)
         ax.set_ylabel(y_label)
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
-        ax.set_title(plot_title)
+        ax.set_title(plot_title)  # , fontname="serif"
+        ax.set_facecolor(background_color)
 
         fig.tight_layout()
 
         # Create file names
+
         fname = folder + str(j).zfill(4)
 
         # Save the plot with smaller margins
         fig.savefig(
             fname + ".jpg",
-            dpi=100,
-        )  # bbox_inches=Bbox.from_bounds(-0.26, -0.2, 3.2, 2.56),
+            dpi=dpi,
+        )
 
         # Obtain ticks data
         x_ticks_data = ax.get_xticks()
@@ -518,12 +560,14 @@ def create_data(start, end, folder):
         # Standardise pixel coordinates to (0,1)
         x_ticks_x_coord_std = x_ticks_x_coord_pixel / fig_width
         x_ticks_y_coord_std = (
-            x_ticks_y_coord_pixel_flip / fig_height + 0.05
-        )  # Note manual adjustment
+            x_ticks_y_coord_pixel_flip / fig_height
+            + 0.05 * 2.4 / figsize_height  # Note manual adjustment
+        )
 
         y_ticks_x_coord_std = (
-            y_ticks_x_coord_pixel / fig_width - 0.05
-        )  # Note manual adjustment
+            y_ticks_x_coord_pixel / fig_width
+            - 0.075 * 3.2 / figsize_width  # Note manual adjustment
+        )
         y_ticks_y_coord_std = y_ticks_y_coord_pixel_flip / fig_height
 
         # Create additional rows to Yolo output
@@ -535,7 +579,8 @@ def create_data(start, end, folder):
                         0 * np.ones((len(x_ticks_data), 1)),
                         np.expand_dims(x_ticks_x_coord_std, 1),
                         np.expand_dims(x_ticks_y_coord_std, 1),
-                        0.1 * np.ones((len(x_ticks_data), 2)),
+                        0.15 * 3.2 / figsize_width * np.ones((len(x_ticks_data), 1)),
+                        0.1 * 2.4 / figsize_height * np.ones((len(x_ticks_data), 1)),
                     )
                 ),
                 np.hstack(
@@ -543,7 +588,8 @@ def create_data(start, end, folder):
                         1 * np.ones((len(y_ticks_data), 1)),
                         np.expand_dims(y_ticks_x_coord_std, 1),
                         np.expand_dims(y_ticks_y_coord_std, 1),
-                        0.1 * np.ones((len(y_ticks_data), 2)),
+                        0.15 * 3.2 / figsize_width * np.ones((len(y_ticks_data), 1)),
+                        0.1 * 2.4 / figsize_height * np.ones((len(y_ticks_data), 1)),
                     )
                 ),
             )
@@ -574,7 +620,8 @@ def create_data(start, end, folder):
                         (
                             np.zeros((len_xy, 1)) + markers.index(marker) + 2,
                             xy_figure,
-                            0.05 * np.ones((len_xy, 2)),
+                            0.06 * 3.2 / figsize_width * np.ones((len_xy, 1)),
+                            0.06 * 2.4 / figsize_height * np.ones((len_xy, 1)),
                         )
                     ),
                 )
@@ -608,25 +655,25 @@ if __name__ == "__main__":
 
     # Define arguments and folders
     if len(sys.argv) > 1:
-        train_size = int(sys.argv[1])
+        TRAIN_SIZE = int(sys.argv[1])
 
-    dataset = "./dataset"
-    train_dir = dataset + "/train/"
-    val_dir = dataset + "/validation/"
-    test_dir = dataset + "/test/"
+    data_dir = "./data"
+    train_dir = data_dir + "/train/"
+    val_dir = data_dir + "/validation/"
+    test_dir = data_dir + "/test/"
 
     # Creat folders and generate files
     print("Starting training data creation...")
     os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
-    create_data(0, train_size, train_dir)
+    create_data(START_INDEX, START_INDEX + TRAIN_SIZE, train_dir)
 
     print("Starting validation data creation...")
     os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
-    create_data(0, int(train_size * val_split), val_dir)
+    create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * VAL_SPLIT), val_dir)
 
     print("Starting test data creation...")
     os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
-    create_data(0, int(train_size * test_split), test_dir)
+    create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * TEST_SPLIT), test_dir)
 
     # Print run time
     end_time = time.time()
