@@ -7,6 +7,8 @@ import ultralytics
 from ultralytics import YOLO
 from ultralytics.engine.results import save_one_box
 import comet_ml
+import torch
+import pandas as pd
 
 currentdir = os.path.dirname(os.path.abspath(__file__)) + "/"
 workspace = os.environ["WORKSPACE"]
@@ -52,23 +54,47 @@ class YoloModel:
             imgsz=320,
             # save_txt=True,
             # save_conf=True,
-            # save_frames=True,
-            # save_crop=True,
+            save_frames=True,
+            save_crop=True,
         )
 
         x_tick_box = []
         y_tick_box = []
-        for d in results[0].boxes:
-            if d.data[:, -1] == 0:
-                x_tick_box.append(
-                    save_one_box(d.xyxy, results[0].orig_img, save=False, gain=0.8)
-                )
-            if d.data[:, -1] == 1:
-                y_tick_box.append(
-                    save_one_box(d.xyxy, results[0].orig_img, save=False, gain=0.8)
-                )
+
+        data = results[0].boxes.data
+        xywhn = torch.cat(
+            (
+                results[0].boxes.data[:, -1].unsqueeze(1),
+                results[0].boxes.data[:, -2].unsqueeze(1),
+                results[0].boxes.xywhn,
+            ),
+            axis=1,
+        )
+
+        sort_column_index = 0
+
+        x_tick_data = data[data[:, -1] == 0, :]
+        x_tick_indices = torch.argsort(x_tick_data[:, sort_column_index], dim=0)
+        sorted_x_ticks = x_tick_data[x_tick_indices]
+
+        sort_column_index = 1
+
+        y_tick_data = data[data[:, -1] == 1, :]
+        y_tick_indices = torch.argsort(y_tick_data[:, sort_column_index], dim=0)
+        sorted_y_ticks = y_tick_data[y_tick_indices]
+
+        for box in sorted_x_ticks:
+            x_tick_box.append(
+                save_one_box(box[:4], results[0].orig_img, save=False, gain=0.6)
+            )
+
+        for box in sorted_y_ticks:
+            y_tick_box.append(
+                save_one_box(box[:4], results[0].orig_img, save=False, gain=0.65)
+            )
+
         results[0].boxes.data
-        return results[0].boxes.data, x_tick_box, y_tick_box
+        return xywhn, x_tick_box, y_tick_box
 
     def load(self) -> YOLO:
         """This function loads the YOLO model given by the path initialized
@@ -106,8 +132,8 @@ class YoloModel:
 if __name__ == "__main__":
     """Take the argument after .py as an image to be predicted or train the model otherwise"""
     if len(sys.argv) == 2:
-        model = yolo_model()
+        model = YoloModel()
         model.predict(sys.argv[1])
     else:
-        model = yolo_model()
+        model = YoloModel()
         model.train()

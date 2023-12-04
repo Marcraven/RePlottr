@@ -19,9 +19,7 @@ def image_to_text(boxes_input):
 
 
 def image_read(img):
-    text = pytesseract.image_to_data(
-        img, lang="eng", config=f"--psm 3", output_type=Output.DATAFRAME
-    )
+    text = pytesseract.image_to_data(img, output_type=Output.DATAFRAME)
     filtered_text = text[text.conf > 0]["text"]
     extracted_numbers = " ".join(
         " ".join(re.findall(r"\b\d+\.?\d*\b", str(item).strip()))
