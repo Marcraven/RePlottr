@@ -19,10 +19,6 @@ NUM_POINTS_MAX = 40
 
 START_INDEX = 0
 
-FIGSIZE_WIDTH = 3.2
-FIGSIZE_HEIGHT = 2.4
-FIGSIZE_DPI = 100
-
 
 ##### Yolo target draw boxes #####
 SOURCE_PATH = "data/train/"
