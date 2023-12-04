@@ -1,28 +1,88 @@
 import os
 import pytesseract
-from pytesseract import Output
 import cv2
-import re
+import numpy as np
 
 
-def image_to_text(boxes_input):
-    labels = boxes_input[1]
+def read_title(image):
+    image = cv2.imread(image)
+    res = cv2.resize(image, None, fx=2.5, fy=2.5, interpolation=cv2.INTER_CUBIC)
 
-    text_data = {}
+    # clean image
+    gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    clean = cv2.bitwise_not(gray)
 
-    for i in os.listdir(labels):
-        if i.endswith(".jpg") or i.endswith(".png"):
-            file_path = os.path.join(labels, i)
-            img = cv2.imread(file_path)
-            text_data[i] = image_read(img)
-    return text_data
+    # noise reduction
+    kernel = np.ones((1, 1), np.uint8)
+    nrd = cv2.dilate(clean, kernel, iterations=1)
+    nrd = cv2.erode(nrd, kernel, iterations=1)
+
+    # filter color
+    processed_image = cv2.bilateralFilter(nrd, 9, 75, 75)
+
+    thr1 = cv2.threshold(
+        processed_image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+    )[1]
+
+    text = pytesseract.image_to_string(thr1, config="--psm 3 --oem 3")
+
+    return text
 
 
-def image_read(img):
-    text = pytesseract.image_to_data(img, output_type=Output.DATAFRAME)
-    filtered_text = text[text.conf > 0]["text"]
-    extracted_numbers = " ".join(
-        " ".join(re.findall(r"\b\d+\.?\d*\b", str(item).strip()))
-        for item in filtered_text
+def image_read(image, digits_only=1):
+    # resize image
+    res = cv2.resize(image, None, fx=2.5, fy=2.5, interpolation=cv2.INTER_CUBIC)
+
+    # clean image
+    gray = cv2.cvtColor(res, cv2.COLOR_BGR2GRAY)
+    clean = cv2.bitwise_not(gray)
+
+    # noise reduction
+    kernel = np.ones((1, 1), np.uint8)
+    nrd = cv2.dilate(clean, kernel, iterations=1)
+    nrd = cv2.erode(nrd, kernel, iterations=1)
+
+    # filter color
+    processed_image = cv2.bilateralFilter(nrd, 9, 75, 75)
+
+    options = ""
+    if digits_only:
+        options = "--psm 6 --oem 3 outputbase digits"
+
+    thr1 = cv2.threshold(
+        processed_image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+    )[1]
+
+    text = pytesseract.image_to_string(
+        thr1,
+        config=options,
     )
-    return extracted_numbers.strip()
+
+    def clean_text(s):
+        # Remove trailing hyphens
+        if s.endswith("-"):
+            s = s.rstrip("-")
+
+        # Remove trailing "-4"
+        if s.endswith("-4"):
+            s = s.rstrip("-4")
+
+        # Remove initial dot
+        if s.startswith("."):
+            s = s.lstrip(".")
+
+        # Remove trailing dot
+        if s.endswith("."):
+            s = s.rstrip(".")
+
+        if "\n" in s:
+            parts = s.split("\n")
+            s = parts[1] if len(parts) >= 2 and parts[1].strip() else parts[0]
+
+        s = s.strip()
+
+        return s
+
+    text = clean_text(text)
+
+    return text
