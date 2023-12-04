@@ -13,7 +13,7 @@ data:
 	python interface/CreateData.py
 
 clean_data:
-	rm -rf /data/*
+	rm -rf data
 
 train_yolo:
 	python ml_logic/yolo/model_yolo.py

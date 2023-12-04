@@ -1,6 +1,7 @@
 # Current result and data folders
 data/
 notebooks/
+runs/
 
 
 # EXTRA
