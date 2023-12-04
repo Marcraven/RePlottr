@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import seaborn as sns
 import random
 import os
 import sys
@@ -400,6 +401,11 @@ font_types = ["DejaVu Sans", "sans-serif", "serif"]
 font_styles = ["normal", "italic", "oblique"]
 font_weights = ["normal", "bold", "light"]
 
+plotting_tools = [
+    "plt",
+    "sns",
+]  # 'px'
+
 
 ##### Define data creation function #####
 def create_data(start, end, folder):
@@ -420,9 +426,6 @@ def create_data(start, end, folder):
         )
         num_points = np.random.randint(NUM_POINTS_MIN, NUM_POINTS_MAX)
 
-        # Create an empty list to store series data
-        series = []
-
         # Define text properties
         font_type = random.choice(font_types)
         font_style = random.choice(font_styles)
@@ -439,10 +442,16 @@ def create_data(start, end, folder):
 
         # Define figure and ax
         fig, ax = plt.subplots(
-            figsize=(figsize_width, figsize_height),  # fig_size,
+            figsize=(figsize_width, figsize_height),
             facecolor=background_color,
             dpi=dpi,
         )
+
+        # Define chart plotting tool
+        plotting_tool = random.choice(plotting_tools)
+
+        # Create an empty list to store series data
+        series = []
 
         # Generate and plot random data for each series
         for i in range(num_series):
@@ -452,18 +461,33 @@ def create_data(start, end, folder):
             x_data = np.round(np.random.rand(points_serie) * xlim, decimals=1)
             y_data = np.round(np.random.rand(points_serie) * ylim, decimals=1)
             marker = random.choice(markers)
+            dot_color = random.choice(dot_colors)
             series.append(
                 {"name": name, "marker": marker, "x": list(x_data), "y": list(y_data)}
             )
 
             # Create a scatter plot for the current series
-            ax.scatter(
-                x=x_data,
-                y=y_data,
-                label=name,
-                marker=marker,
-                color=random.choice(dot_colors),
-            )
+            if plotting_tool == "plt":
+                ax.scatter(
+                    x=x_data,
+                    y=y_data,
+                    label=name,
+                    marker=marker,
+                    color=dot_color,
+                    alpha=0.7,
+                )
+
+            elif plotting_tool == "sns":
+                sns.scatterplot(
+                    x=x_data,
+                    y=y_data,
+                    ax=ax,
+                    label=name,
+                    color=dot_color,
+                    marker=marker,
+                    legend=False,
+                    alpha=0.7,
+                )
 
         # Add legend
         # ax.legend(loc="upper right", framealpha=0.3)  # , bbox_to_anchor=(0.6,0.5))
@@ -474,13 +498,12 @@ def create_data(start, end, folder):
         ax.set_xlabel(x_label)
         ax.set_ylabel(y_label)
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
-        ax.set_title(plot_title)  # , fontname="serif"
+        ax.set_title(plot_title)
         ax.set_facecolor(background_color)
 
         fig.tight_layout()
 
-        # Create file names
-
+        # Create file name
         fname = folder + str(j).zfill(4)
 
         # Save the plot with smaller margins
