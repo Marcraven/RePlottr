@@ -1,5 +1,17 @@
 # Current result and data folders
 data/
+notebooks/
+runs/
+
+
+# EXTRA
+TextRecognition/DonutApproach/result/
+TextRecognition/DonutApproach/dataset/
+TextRecognition/DonutApproach/donut/__pycache__/
+ObjectRecognition/yolo/dataset/
+ObjectRecognition/weights/
+yolo-donutplot-marcraven
+ObjectRecognition/yolo
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
