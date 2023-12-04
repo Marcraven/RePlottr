@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 model = YoloModel()
 
-image = "data/train/0002.jpg"
+image = "data/train/0003.jpg"
 output = model.predict(image)
 columns = max(len(output[1]), len(output[2]))
 
@@ -27,7 +27,7 @@ for j, box in enumerate(output[2]):
     plt.xlabel(y_ticks_values[j])
     plt.xticks([])
     plt.yticks([])
-merge(output[0], x_ticks_values, y_ticks_values)
+# merge(output[0], x_ticks_values, y_ticks_values)
 
 print(x_ticks_values)
 print(y_ticks_values)

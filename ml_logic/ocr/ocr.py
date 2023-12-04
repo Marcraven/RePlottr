@@ -26,6 +26,8 @@ def read_title(image):
 
     text = pytesseract.image_to_string(thr1, config="--psm 3 --oem 3")
 
+    return text
+
 
 def image_read(image, digits_only=1):
     # resize image
