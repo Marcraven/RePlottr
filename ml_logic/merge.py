@@ -96,6 +96,8 @@ def fill_empty_values(data):
 
 def merge(yolo_output, x_tick_values, y_tick_values):
     breakpoint()
+    x_scale = LinearRegression()
+
     x_tick_values = fill_empty_values(x_tick_values)
     y_tick_values = fill_empty_values(y_tick_values)
 
