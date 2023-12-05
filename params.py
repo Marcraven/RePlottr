@@ -2,6 +2,8 @@ import os
 
 
 ##### Train data ######
+TRAINING_MODE = False
+
 TRAIN_SIZE = 100
 VAL_SPLIT = 0.125
 TEST_SPLIT = 0.125
