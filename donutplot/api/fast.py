@@ -39,7 +39,7 @@ async def receive_image(img: UploadFile = File(...)):
     response = make_prediction(image_path)
 
     # os.remove(filename) for file in os.listdir(image_directory) if file.endswith('.jpg')
-    breakpoint()
+
     return {
         "prediction": response
     }  # Response(content=im.tobytes(), media_type="image/jpg")

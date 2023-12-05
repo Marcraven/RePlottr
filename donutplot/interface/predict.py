@@ -1,4 +1,4 @@
-from donutplot.ml_logic.yolo.yolo import YoloModel
+from donutplot.ml_logic.yolo.yolo_pred import YoloModel
 from donutplot.ml_logic.ocr.ocr import (
     read_title,
     read_x_axis_label,

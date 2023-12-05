@@ -16,13 +16,6 @@ st.set_page_config(
 
 st.title("🍩 Donutplot")
 
-df = pd.DataFrame(
-    {
-        "Velocity of Donut": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        "Sprinkles on Donut": [3, 1, 2, 5, 4, 6, 3, 7, 2, 5],
-    }
-)
-
 img_file_buffer = st.file_uploader("Upload an image")
 
 if img_file_buffer is not None:
@@ -39,12 +32,15 @@ if img_file_buffer is not None:
             ### Get bytes from the file buffer
             img_bytes = img_file_buffer.getvalue()
 
+            url = ""
+
             ### Make request to  API (stream=True to stream response as bytes)
-            res = requests.post(url + "/upload_image", files={"img": img_bytes})
+            res = requests.post(url + "/predict", files={"img": img_bytes})
 
             if res.status_code == 200:
+                st.plotly_chart(res.json())
                 ### Display the image returned by the API
-                st.image(res.content, caption="Image returned from API ☝️")
+
             else:
                 st.markdown("**Oops**, something went wrong 😓 Please try again.")
                 print(res.status_code, res.content)
