@@ -1,0 +1,15 @@
+FROM python:3.10-buster
+COPY setup.py setup.py
+COPY requirements.txt requirements.txt
+RUN pip install --upgrade pip
+RUN pip install -e .
+
+# libraries required by OpenCV (working with images)
+RUN apt-get update
+RUN apt-get install \
+  'ffmpeg'\
+  'libsm6'\
+  'libxext6'  -y
+
+COPY donutplot donutplot/
+CMD uvicorn donutplot.api.fast:app --host 0.0.0.0 --port $PORT

@@ -1,7 +1,7 @@
 import numpy as np
 from ml_logic.yolo.utils.draw_box import draw_boxes
 import os, os.path
-from params import SOURCE_PATH, SAVE_PATH
+from donutplot.params import SOURCE_PATH, SAVE_PATH
 
 
 ##### Draw boxes on all  images found in source folder and save them in save folder #####

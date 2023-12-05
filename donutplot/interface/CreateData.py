@@ -7,7 +7,7 @@ import os
 import sys
 import json
 import time
-from params import (
+from donutplot.params import (
     TRAINING_MODE,
     TRAIN_SIZE,
     VAL_SPLIT,

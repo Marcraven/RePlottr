@@ -23,6 +23,6 @@ BATCH_SIZE = 20
 IMGSZ = 320
 PATIENCE = 10
 ##### Yolo target draw boxes #####
-SOURCE_PATH = "data/train/"
-SAVE_PATH = "data/train/boxed/"
+SOURCE_PATH = "./data/train/"
+SAVE_PATH = "./data/train/boxed/"
 BEST_PT_PATH = "ml_logic/yolo/"

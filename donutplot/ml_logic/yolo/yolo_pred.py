@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 from ultralytics.engine.results import save_one_box
 import torch
-from params import *
+from donutplot.params import *
 
 best_pt_path = BEST_PT_PATH
 

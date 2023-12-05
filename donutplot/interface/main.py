@@ -1,11 +1,11 @@
-from ml_logic.yolo.yolo_pred import YoloModel
-from ml_logic.ocr.ocr import (
+from donutplot.ml_logic.yolo.yolo_pred import YoloModel
+from donutplot.ml_logic.ocr.ocr import (
     read_title,
     read_x_axis_label,
     read_y_axis_label,
     read_ticks,
 )
-from ml_logic.merge import merge
+from donutplot.ml_logic.merge import merge
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 

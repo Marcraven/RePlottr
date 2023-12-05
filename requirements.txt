@@ -1,3 +1,27 @@
+# packaging
+pip>=9
+setuptools>=26
+twine
+wheel>=0.29
+
+# data science
+six
+numpy
+
+# img
+pillow
+opencv-python
+
+# web
+streamlit
+requests
+python-dotenv
+
+# api
+fastapi
+uvicorn
+python-multipart
+
 # Base ----------------------------------------
 matplotlib>=3.3.0
 numpy>=1.22.2 # pinned by Snyk to avoid a vulnerability
