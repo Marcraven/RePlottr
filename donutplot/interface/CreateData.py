@@ -439,9 +439,9 @@ def create_data(start, end, folder):
         background_color = random.choice(background_colors)
 
         if TRAINING_MODE:
-            figsize_width = 3.2
-            figsize_height = 2.4
-            dpi = 100
+            figsize_width = 6.4
+            figsize_height = 4.8
+            dpi = 300
 
         else:
             figsize_width = random.choice(figsize_widths)

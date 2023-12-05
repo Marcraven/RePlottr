@@ -1,7 +1,7 @@
 ##### Train data ######
 TRAINING_MODE = True
 
-TRAIN_SIZE = 1000
+TRAIN_SIZE = 20
 VAL_SPLIT = 0.2
 TEST_SPLIT = 0.2
 
