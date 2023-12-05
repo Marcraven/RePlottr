@@ -14,7 +14,7 @@ ipdb
 pytest
 pylint
 jupyterlab
-
+plotly
 
 # Donut ---------------------------------------
 timm

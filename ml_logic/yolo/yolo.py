@@ -54,8 +54,8 @@ class YoloModel:
             imgsz=320,
             # save_txt=True,
             # save_conf=True,
-            save_frames=True,
-            save_crop=True,
+            # save_frames=True,
+            # save_crop=True,
         )
 
         x_tick_box = []
@@ -85,12 +85,12 @@ class YoloModel:
 
         for box in sorted_x_ticks:
             x_tick_box.append(
-                save_one_box(box[:4], results[0].orig_img, save=False, gain=0.6)
+                save_one_box(box[:4], results[0].orig_img, save=False, gain=1)
             )
 
         for box in sorted_y_ticks:
             y_tick_box.append(
-                save_one_box(box[:4], results[0].orig_img, save=False, gain=0.65)
+                save_one_box(box[:4], results[0].orig_img, save=False, gain=1)
             )
 
         results[0].boxes.data

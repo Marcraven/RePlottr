@@ -4,7 +4,7 @@ import os
 ##### Train data ######
 TRAINING_MODE = False
 
-TRAIN_SIZE = 10
+TRAIN_SIZE = 100
 VAL_SPLIT = 0.125
 TEST_SPLIT = 0.125
 
@@ -20,7 +20,6 @@ NUM_POINTS_MIN = 20
 NUM_POINTS_MAX = 40
 
 START_INDEX = 0
-
 
 ##### Yolo target draw boxes #####
 SOURCE_PATH = "data/train/"
