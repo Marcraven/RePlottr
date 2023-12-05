@@ -8,12 +8,9 @@ from ultralytics import YOLO
 from ultralytics.engine.results import save_one_box
 import comet_ml
 import torch
-import pandas as pd
+import datetime
 
 currentdir = os.path.dirname(os.path.abspath(__file__)) + "/"
-workspace = os.environ["WORKSPACE"]
-model_name = os.environ["MODEL_NAME"]
-project = os.environ["COMET_PROJECT_NAME"]
 
 
 class YoloModel:
@@ -30,7 +27,7 @@ class YoloModel:
             "batch_size": 16,
             "imgsz": 320,
         }
-
+        workspace, model_name, project = self.load_environ()
         # Train the model
         yolo.train(
             data=currentdir + "dataset.yaml",
@@ -48,6 +45,7 @@ class YoloModel:
     def predict(self, scatterpath):
         """This gives a prediction of the image found in scatterpath"""
         yolo = self.load()
+        now = datetime.datetime.now()
         results = yolo.predict(
             scatterpath,
             save=False,
@@ -57,7 +55,7 @@ class YoloModel:
             # save_frames=True,
             # save_crop=True,
         )
-
+        print(datetime.datetime.now() - now)
         x_tick_box = []
         y_tick_box = []
 
@@ -94,7 +92,8 @@ class YoloModel:
             )
 
         results[0].boxes.data
-        return xywhn, x_tick_box, y_tick_box
+
+        return xywhn.cpu().numpy(), x_tick_box, y_tick_box
 
     def load(self) -> YOLO:
         """This function loads the YOLO model given by the path initialized
@@ -103,6 +102,7 @@ class YoloModel:
             return YOLO(self.weights)
         else:
             api = API()
+            workspace, model_name, project = self.load_environ()
             models = api.get_model(workspace=workspace, model_name=model_name)
             last_version = models.find_versions()[0]
             version_path = currentdir + "weights/" + last_version.replace(".", "_")
@@ -118,6 +118,7 @@ class YoloModel:
 
     def save(self, yolo) -> YOLO:
         """This function saves the YOLO model locally and in Comet"""
+        workspace, model_name, project = self.load_environ()
         yolo.export()
         api = API()
         experiments = api.get(workspace=workspace, project_name=project)
@@ -127,6 +128,12 @@ class YoloModel:
             experiment=experiments[-1]._name,
         )
         experiment.register_model(model_name)
+
+    def load_environ():
+        workspace = os.environ["WORKSPACE"]
+        model_name = os.environ["MODEL_NAME"]
+        project = os.environ["COMET_PROJECT_NAME"]
+        return currentdir, workspace, model_name, project
 
 
 if __name__ == "__main__":
