@@ -8,6 +8,7 @@ import sys
 import json
 import time
 from params import (
+    TRAINING_MODE,
     TRAIN_SIZE,
     VAL_SPLIT,
     TEST_SPLIT,
@@ -401,10 +402,10 @@ font_types = ["DejaVu Sans", "sans-serif", "serif"]
 font_styles = ["normal", "italic", "oblique"]
 font_weights = ["normal", "bold", "light"]
 
-plotting_tools = [
-    "plt",
-    "sns",
-]  # 'px'
+plotting_tools = ["plt", "sns"]
+
+alpha_min = 0.7
+alpha_max = 0.9
 
 
 ##### Define data creation function #####
@@ -434,11 +435,18 @@ def create_data(start, end, folder):
         font = {"family": font_type, "style": font_style, "weight": font_weight}
         mpl.rc("font", **font)
 
-        # Define figure size, backgroun colour and dpi
-        figsize_width = random.choice(figsize_widths)
-        figsize_height = random.choice(figsize_heights)
+        # Define figure size, background colour and dpi
         background_color = random.choice(background_colors)
-        dpi = random.choice(fig_dpis)
+
+        if TRAINING_MODE:
+            figsize_width = 3.2
+            figsize_height = 2.4
+            dpi = 100
+
+        else:
+            figsize_width = random.choice(figsize_widths)
+            figsize_height = random.choice(figsize_heights)
+            dpi = random.choice(fig_dpis)
 
         # Define figure and ax
         fig, ax = plt.subplots(
@@ -449,6 +457,10 @@ def create_data(start, end, folder):
 
         # Define chart plotting tool
         plotting_tool = random.choice(plotting_tools)
+
+        # Define alpha
+        alpha_switch = random.choice([False, True])
+        alpha = round(np.random.uniform(alpha_min, alpha_max), 1) if alpha_switch else 1
 
         # Create an empty list to store series data
         series = []
@@ -474,7 +486,7 @@ def create_data(start, end, folder):
                     label=name,
                     marker=marker,
                     color=dot_color,
-                    alpha=0.7,
+                    alpha=alpha,
                 )
 
             elif plotting_tool == "sns":
@@ -486,7 +498,7 @@ def create_data(start, end, folder):
                     color=dot_color,
                     marker=marker,
                     legend=False,
-                    alpha=0.7,
+                    alpha=alpha,
                 )
 
         # Add legend
@@ -501,6 +513,39 @@ def create_data(start, end, folder):
         ax.set_title(plot_title)
         ax.set_facecolor(background_color)
 
+        # Decide whether tickmarks are shown
+        tickmark_remove_switch = random.choices([False, True], weights=[0.7, 0.3])[0]
+
+        if tickmark_remove_switch:
+            ax.tick_params(axis="both", which="both", length=0)
+
+        # Decide whether top and right spines are shown
+        spine_remove_switch = random.choice([False, True])
+
+        if spine_remove_switch:
+            ax.spines[["right", "top"]].set_visible(False)
+
+        # Decide whether gridlines are shown
+        gridline_switch = random.choices([False, True], weights=[0.7, 0.3])[0]
+        x_grid_switch = (
+            random.choices([False, True], weights=[0.2, 0.8])[0]
+            if gridline_switch
+            else False
+        )
+        y_grid_switch = (
+            random.choices([False, True], weights=[0.2, 0.8])[0]
+            if gridline_switch
+            else False
+        )
+
+        if x_grid_switch and y_grid_switch:
+            ax.grid(linewidth=0.5)
+        elif x_grid_switch and not y_grid_switch:
+            ax.grid(axis="x", linewidth=0.5)
+        elif not x_grid_switch and y_grid_switch:
+            ax.grid(axis="y", linewidth=0.5)
+
+        # Set tight layout
         fig.tight_layout()
 
         # Create file name
