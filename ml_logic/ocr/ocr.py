@@ -1,8 +1,8 @@
-import os
 import pytesseract
 import cv2
 import numpy as np
 import re
+from pytesseract import Output
 
 
 def preprocess_image(image):
@@ -26,6 +26,33 @@ def preprocess_image(image):
     )[1]
 
     return thr1
+
+
+def clean_text(s):
+    s = s.strip()
+    # Remove trailing hyphens
+    if s.endswith("-"):
+        s = s.rstrip("-")
+
+    # Remove trailing "-4"
+    if s.endswith("-4"):
+        s = s.rstrip("-4")
+
+    # Remove initial dot
+    if s.startswith("."):
+        s = s.lstrip(".")
+
+    # Remove trailing dot
+    if s.endswith("."):
+        s = s.rstrip(".")
+
+    if "\n" in s:
+        parts = s.split("\n")
+        s = parts[1] if len(parts) >= 2 and parts[1].strip() else parts[0]
+
+    s = s.strip()
+
+    return s
 
 
 def read_title(image):
@@ -93,6 +120,27 @@ def read_y_axis_label(image):
 
 def read_ticks(image, digits_only=1):
     image = preprocess_image(image)
+    options = ""
+    if digits_only:
+        options = "--psm 6 --oem 3 outputbase digits"
+
+    text = pytesseract.image_to_data(
+        image, config=options, output_type=Output.DATAFRAME
+    )
+
+    filtered_text = text.loc[text["conf"] > 75, "text"]
+    extracted_numbers = " ".join(
+        " ".join(re.findall(r"-?\b\d+\b(?:\.\d+)?", str(item).strip()))
+        for item in filtered_text
+    )
+
+    text_data = clean_text(extracted_numbers)
+
+    return text_data
+
+
+def read_ticks_string(image, digits_only=1):
+    image = preprocess_image(image)
 
     options = ""
     if digits_only:
@@ -102,31 +150,6 @@ def read_ticks(image, digits_only=1):
         image,
         config=options,
     )
-
-    def clean_text(s):
-        # Remove trailing hyphens
-        if s.endswith("-"):
-            s = s.rstrip("-")
-
-        # Remove trailing "-4"
-        if s.endswith("-4"):
-            s = s.rstrip("-4")
-
-        # Remove initial dot
-        if s.startswith("."):
-            s = s.lstrip(".")
-
-        # Remove trailing dot
-        if s.endswith("."):
-            s = s.rstrip(".")
-
-        if "\n" in s:
-            parts = s.split("\n")
-            s = parts[1] if len(parts) >= 2 and parts[1].strip() else parts[0]
-
-        s = s.strip()
-
-        return s
 
     text = clean_text(text)
 
