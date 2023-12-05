@@ -25,4 +25,4 @@ PATIENCE = 10
 ##### Yolo target draw boxes #####
 SOURCE_PATH = "./data/train/"
 SAVE_PATH = "./data/train/boxed/"
-BEST_PT_PATH = "ml_logic/yolo/"
+BEST_PT_PATH = "donutplot/ml_logic/yolo/"

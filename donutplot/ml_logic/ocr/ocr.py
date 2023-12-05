@@ -128,7 +128,7 @@ def read_ticks(image, digits_only=1):
         image, config=options, output_type=Output.DATAFRAME
     )
 
-    filtered_text = text.loc[text["conf"] > 75, "text"]
+    filtered_text = text.loc[text["conf"] > 50, "text"]
     extracted_numbers = " ".join(
         " ".join(re.findall(r"-?\b\d+\b(?:\.\d+)?", str(item).strip()))
         for item in filtered_text
