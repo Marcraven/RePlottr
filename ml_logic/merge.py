@@ -51,8 +51,8 @@ def merge(yolo_output, x_tick_values, y_tick_values):
         serie_dict = {}
         serie_dict["marc"] = markers[int(serie) - 2]
         points = scatterpoints[scatterpoints[:, 0] == serie, :]
-        serie_dict["x_values"] = x_model.predict(points[:, 2].reshape(-1, 1))
-        serie_dict["y_values"] = y_model.predict(points[:, 3].reshape(-1, 1))
+        serie_dict["x_values"] = x_model.predict(points[:, 2].reshape(-1, 1)).tolist()
+        serie_dict["y_values"] = y_model.predict(points[:, 3].reshape(-1, 1)).tolist()
         series_list.append(serie_dict)
 
     return series_list

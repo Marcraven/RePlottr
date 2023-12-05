@@ -75,7 +75,7 @@ y_label = read_y_axis_label(image)
 print(f"Title: {title}")
 print(f"X Label: {x_label}")
 print(f"y Label: {y_label}")
-
+print(data_dicts)
 plt.figure(3)
 plt.imshow(mpimg.imread(image))
 plt.show()

@@ -9,6 +9,7 @@ from ultralytics.engine.results import save_one_box
 import comet_ml
 import torch
 import datetime
+from params import *
 
 currentdir = os.path.dirname(os.path.abspath(__file__)) + "/"
 
@@ -19,17 +20,17 @@ class YoloModel:
 
     def train(self):
         """This loads a model and then trains it, the results are saved into Comet"""
-        yolo = self.load()
+        self.load()
         comet_ml.init()
         hyper_params = {
-            "patience": 10,
-            "epochs": 20,
-            "batch_size": 16,
-            "imgsz": 320,
+            "patience": PATIENCE,
+            "epochs": EPOCHS,
+            "batch_size": BATCH_SIZE,
+            "imgsz": IMGSZ,
         }
         workspace, model_name, project = self.load_environ()
         # Train the model
-        yolo.train(
+        self.yolo.train(
             data=currentdir + "dataset.yaml",
             name=model_name,
             project=project,
@@ -40,7 +41,7 @@ class YoloModel:
             imgsz=hyper_params["imgsz"],
             save=True,
         )
-        self.save(yolo)
+        self.save()
 
     def predict(self, scatterpath):
         """This gives a prediction of the image found in scatterpath"""
@@ -98,42 +99,71 @@ class YoloModel:
     def load(self) -> YOLO:
         """This function loads the YOLO model given by the path initialized
         Otherwise it will download the weights from the latest version on Comet"""
+        print("Loading models...")
         if self.weights is not None:
-            return YOLO(self.weights)
-        else:
-            api = API()
-            workspace, model_name, project = self.load_environ()
-            models = api.get_model(workspace=workspace, model_name=model_name)
-            last_version = models.find_versions()[0]
-            version_path = currentdir + "weights/" + last_version.replace(".", "_")
-            if os.path.exists(version_path) == False:
-                os.makedirs(version_path)
-                print("Downloading latest version...")
-                models.download(
-                    version=last_version,
-                    output_folder=version_path,
-                    expand=True,
-                )
-            return YOLO(version_path + "/best.pt")
-
-    def save(self, yolo) -> YOLO:
-        """This function saves the YOLO model locally and in Comet"""
-        workspace, model_name, project = self.load_environ()
-        yolo.export()
+            self.local = YOLO(self.weights)
+        # else:
         api = API()
-        experiments = api.get(workspace=workspace, project_name=project)
-        experiment = api.get(
-            workspace=workspace,
-            project_name=project,
-            experiment=experiments[-1]._name,
-        )
-        experiment.register_model(model_name)
+        workspace, model_name, project = self.load_environ()
+        models = api.get_model(workspace=workspace, model_name=model_name)
+        last_version = models.find_versions()[0]
+        version_path = currentdir + "weights/" + last_version.replace(".", "_")
+        if os.path.exists(version_path) == False:
+            os.makedirs(version_path)
+            print("Downloading latest version...")
+            models.download(
+                version=last_version,
+                output_folder=version_path,
+                expand=True,
+            )
+        self.comet = YOLO(version_path + "/best.pt")
+        mp50prod = self.comet.val(
+            data=currentdir + "dataset.yaml", split="test"
+        ).results_dict["metrics/mAP50(B)"]
+        mp50local = self.local.val(
+            data=currentdir + "dataset.yaml", split="test"
+        ).results_dict["metrics/mAP50(B)"]
+        if mp50prod < mp50local:
+            self.yolo = self.local
+            self.chosen = "local"
+            self.mp50 = mp50prod
+            print("Local model was best and was selected.")
+        else:
+            self.yolo = self.comet
+            self.chosen = "comet"
+            self.mp50 = mp50local
+            print("Comet model was best and was selected.")
 
-    def load_environ():
+    def save(self) -> YOLO:
+        """This function saves the YOLO model locally and in Comet"""
+        result = self.local.val(
+            data=currentdir + "dataset.yaml", split="test"
+        ).results_dict["metrics/mAP50(B)"]
+        if result > self.mp50:
+            print("Model is better than previous. Registering in Comet.")
+            workspace, model_name, project = self.load_environ()
+            self.yolo.export()
+            api = API()
+            experiments = api.get(workspace=workspace, project_name=project)
+            experiment = api.get(
+                workspace=workspace,
+                project_name=project,
+                experiment=experiments[-1]._name,
+            )
+            experiment.register_model(
+                model_name,
+                metric=result,
+                status="Production",
+                description="mp50 = " + str(result),
+            )
+        else:
+            print("Previous model was better. Results not saved in Comet.")
+
+    def load_environ(self):
         workspace = os.environ["WORKSPACE"]
         model_name = os.environ["MODEL_NAME"]
         project = os.environ["COMET_PROJECT_NAME"]
-        return currentdir, workspace, model_name, project
+        return workspace, model_name, project
 
 
 if __name__ == "__main__":
