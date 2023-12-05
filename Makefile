@@ -1,16 +1,16 @@
 default: install_requirements
 
 streamlit:
-	@streamlit run interface/app.py
+	@streamlit run frontend/interface/app.py
 
 streamlit_bw:
-	@streamlit run interface/app_bw.py
+	@streamlit run frontend/interface/app_bw.py
 
 install_requirements:
 	@pip install -r requirements.txt
 
 data_please:
-	python interface/CreateData.py
+	python donutplot/interface/CreateData.py
 
 clean_data:
 	rm -rf data
