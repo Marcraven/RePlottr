@@ -41,10 +41,10 @@ def make_prediction(image):
     #     file.write("\n")  # Add a newline character to separate JSON objects
 
     response = {
-        "data_dicts": data_dicts,
         "title": title,
         "x_label": x_label,
         "y_label": y_label,
+        "data_dicts": data_dicts,
     }
 
     return response
