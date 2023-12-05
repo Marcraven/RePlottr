@@ -1,6 +1,3 @@
-import os
-
-
 ##### Train data ######
 TRAINING_MODE = False
 
@@ -24,3 +21,4 @@ START_INDEX = 0
 ##### Yolo target draw boxes #####
 SOURCE_PATH = "data/train/"
 SAVE_PATH = "data/train/boxed/"
+BEST_PT_PATH = "ml_logic/yolo/"

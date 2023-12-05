@@ -1,4 +1,4 @@
-from ml_logic.yolo.yolo import YoloModel
+from ml_logic.yolo.yolo_pred import YoloModel
 from ml_logic.ocr.ocr import (
     read_title,
     read_x_axis_label,
@@ -7,8 +7,8 @@ from ml_logic.ocr.ocr import (
 )
 from ml_logic.merge import merge
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
 import matplotlib.image as mpimg
+
 
 model = YoloModel()
 
@@ -63,19 +63,19 @@ markers = [
     "d",
 ]
 
-# plt.figure(2)
-# for series in data_dicts:
-#     plt.scatter(series["x_values"], series["y_values"], marker=series["marc"])
+plt.figure(2)
+for series in data_dicts:
+    plt.scatter(series["x_values"], series["y_values"], marker=series["marc"])
 
 
 title = read_title(image)
 x_label = read_x_axis_label(image)
 y_label = read_y_axis_label(image)
 
-# print(f"Title: {title}")
-# print(f"X Label: {x_label}")
-# print(f"y Label: {y_label}")
+print(f"Title: {title}")
+print(f"X Label: {x_label}")
+print(f"y Label: {y_label}")
 
-# plt.figure(3)
-# plt.imshow(mpimg.imread(image))
-# plt.show()
+plt.figure(3)
+plt.imshow(mpimg.imread(image))
+plt.show()
