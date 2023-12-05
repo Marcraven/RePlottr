@@ -16,4 +16,4 @@ clean_data:
 	rm -rf data
 
 train_yolo:
-	python ml_logic/yolo/yolo.py
+	python donutplot/ml_logic/yolo/yolo.py

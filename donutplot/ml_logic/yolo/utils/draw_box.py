@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import os, os.path
-from params import SOURCE_PATH, SAVE_PATH
+from donutplot.params import SOURCE_PATH, SAVE_PATH
 
 ##### Define and import constants #####
 file_name = "0000"

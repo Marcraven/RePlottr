@@ -9,7 +9,7 @@ from ultralytics.engine.results import save_one_box
 import comet_ml
 import torch
 import datetime
-from params import *
+from donutplot.params import *
 
 currentdir = os.path.dirname(os.path.abspath(__file__)) + "/"
 
