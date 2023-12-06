@@ -1,7 +1,7 @@
 ##### Train data ######
 TRAINING_MODE = True
 
-TRAIN_SIZE = 1000
+TRAIN_SIZE = 100
 VAL_SPLIT = 0.2
 TEST_SPLIT = 0.2
 
@@ -18,9 +18,9 @@ NUM_POINTS_MAX = 60
 
 START_INDEX = 0
 
-EPOCHS = 1000
-BATCH_SIZE = 20
-IMGSZ = 640
+EPOCHS = 50
+BATCH_SIZE = 16
+IMGSZ = 1920
 PATIENCE = 10
 ##### Yolo target draw boxes #####
 SOURCE_PATH = "./data/train/"
