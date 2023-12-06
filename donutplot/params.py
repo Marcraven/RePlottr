@@ -18,11 +18,12 @@ NUM_POINTS_MAX = 60
 
 START_INDEX = 0
 
-EPOCHS = 50
-BATCH_SIZE = 16
-IMGSZ = 1920
+EPOCHS = 10
+BATCH_SIZE = 3
+IMGSZ = 960
 PATIENCE = 10
 ##### Yolo target draw boxes #####
 SOURCE_PATH = "./data/train/"
 SAVE_PATH = "./data/train/boxed/"
+TEST_PATH = "./data/test/"
 BEST_PT_PATH = "donutplot/ml_logic/yolo/"
