@@ -1,7 +1,17 @@
-##### Train data ######
+##### Train mode (data generation) ######
 TRAINING_MODE = True
+FIGSIZE_WIDTH_TRAINING_MODE = 6.4
+FIGSIZE_HEIGHT_TRAINING_MODE = 4.8
+DPI_TRAINING_MODE = 300
 
-TRAIN_SIZE = 100
+EPOCHS = 1000
+BATCH_SIZE = 20
+IMGSZ = 640
+PATIENCE = 10
+
+
+##### Data generation ######
+TRAIN_SIZE = 10
 VAL_SPLIT = 0.2
 TEST_SPLIT = 0.2
 
