@@ -14,3 +14,6 @@ clean_data:
 
 train_yolo:
 	python donutplot/ml_logic/yolo/yolo.py
+
+benchmark:
+	python donutplot/interface/benchmark.py
