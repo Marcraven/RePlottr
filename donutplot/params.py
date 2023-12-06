@@ -1,7 +1,17 @@
-##### Train data ######
+##### Train mode (data generation) ######
 TRAINING_MODE = True
+FIGSIZE_WIDTH_TRAINING_MODE = 6.4
+FIGSIZE_HEIGHT_TRAINING_MODE = 4.8
+DPI_TRAINING_MODE = 300
 
-TRAIN_SIZE = 1000
+EPOCHS = 1000
+BATCH_SIZE = 20
+IMGSZ = 640
+PATIENCE = 10
+
+
+##### Data generation ######
+TRAIN_SIZE = 100
 VAL_SPLIT = 0.2
 TEST_SPLIT = 0.2
 
@@ -18,10 +28,7 @@ NUM_POINTS_MAX = 60
 
 START_INDEX = 0
 
-EPOCHS = 1000
-BATCH_SIZE = 20
-IMGSZ = 640
-PATIENCE = 10
+
 ##### Yolo target draw boxes #####
 SOURCE_PATH = "./data/train/"
 SAVE_PATH = "./data/train/boxed/"

@@ -9,6 +9,9 @@ import json
 import time
 from donutplot.params import (
     TRAINING_MODE,
+    FIGSIZE_WIDTH_TRAINING_MODE,
+    FIGSIZE_HEIGHT_TRAINING_MODE,
+    DPI_TRAINING_MODE,
     TRAIN_SIZE,
     VAL_SPLIT,
     TEST_SPLIT,
@@ -439,9 +442,9 @@ def create_data(start, end, folder):
         background_color = random.choice(background_colors)
 
         if TRAINING_MODE:
-            figsize_width = 6.4
-            figsize_height = 4.8
-            dpi = 300
+            figsize_width = FIGSIZE_WIDTH_TRAINING_MODE
+            figsize_height = FIGSIZE_HEIGHT_TRAINING_MODE
+            dpi = DPI_TRAINING_MODE
 
         else:
             figsize_width = random.choice(figsize_widths)
