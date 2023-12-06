@@ -11,7 +11,7 @@ PATIENCE = 10
 
 
 ##### Data generation ######
-TRAIN_SIZE = 100
+TRAIN_SIZE = 10
 VAL_SPLIT = 0.2
 TEST_SPLIT = 0.2
 

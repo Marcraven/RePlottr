@@ -478,7 +478,11 @@ def create_data(start, end, folder):
             marker = random.choice(markers)
             dot_color = random.choice(dot_colors)
             series.append(
-                {"name": name, "marker": marker, "x": list(x_data), "y": list(y_data)}
+                {
+                    "marker": marker,
+                    "x_values": list(x_data),
+                    "y_values": list(y_data),
+                }  # "name": name,
             )
 
             # Create a scatter plot for the current series
@@ -592,17 +596,27 @@ def create_data(start, end, folder):
         # Create ground truth dictionary for DONUT and add it to metadata
         ground_truth = {
             "title": plot_title,
-            "x_label": x_label,
-            "x_ticks": list(x_ticks_data),
-            "y_label": y_label,
-            "y_ticks": list(y_ticks_data),
-            # "series": series,
+            "x_label": [
+                [
+                    x_label.split("[")[0].rstrip(" "),
+                    x_label.split("[")[1].rstrip("]"),
+                ]
+            ],
+            "y_label": [
+                [
+                    y_label.split("[")[0].rstrip(" "),
+                    y_label.split("[")[1].rstrip("]"),
+                ]
+            ],
+            "data_dicts": series,
+            # "x_ticks": list(x_ticks_data),
+            # "y_ticks": list(y_ticks_data),
         }
 
         # Create metadata
         metadata = {
             "file_name": str(j).zfill(4) + ".jpg",
-            "ground_truth": '{"gt_parse": ' + json.dumps(ground_truth) + "}",
+            "ground_truth": ground_truth,
         }
         metadata_list.append(metadata)
 
@@ -669,8 +683,8 @@ def create_data(start, end, folder):
         ##### Add dots' position coordinates to Yolo output #####
         for i in range(num_series):
             ### Obtain series data
-            x_data = series[i]["x"]
-            y_data = series[i]["y"]
+            x_data = series[i]["x_values"]
+            y_data = series[i]["y_values"]
             marker = series[i]["marker"]
 
             # Transform data to display pixel coordinates
