@@ -3,6 +3,9 @@ default: install_requirements
 streamlit:
 	@streamlit run frontend/app.py
 
+uvicorn:
+	@uvicorn donutplot.api.fast:app --reload
+
 install_requirements:
 	@pip install -r requirements.txt
 
