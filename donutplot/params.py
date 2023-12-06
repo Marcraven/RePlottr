@@ -28,7 +28,6 @@ NUM_POINTS_MAX = 60
 
 START_INDEX = 0
 
-
 ##### Yolo target draw boxes #####
 SOURCE_PATH = "./data/train/"
 SAVE_PATH = "./data/train/boxed/"

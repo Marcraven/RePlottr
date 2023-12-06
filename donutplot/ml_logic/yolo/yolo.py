@@ -152,7 +152,6 @@ class YoloModel:
             )
             experiment.register_model(
                 model_name,
-                metric=result,
                 status="Production",
                 description="mp50 = " + str(result),
             )
