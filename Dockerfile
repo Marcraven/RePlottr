@@ -5,10 +5,11 @@ RUN pip install --upgrade pip
 RUN pip install -e .
 
 # libraries required by OpenCV (working with images)
-RUN apt-get update
-RUN apt-get install \
+RUN apt-get update && \
+apt-get install \
   'tesseract-ocr' \
   'libtesseract-dev' \
+  'ffmpeg'\
   'libsm6'\
   'libxext6'  -y
 
