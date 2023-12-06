@@ -63,7 +63,7 @@ def read_title(image):
     x = 0
     y = 0
     w = width
-    h = round(height * 0.15)
+    h = round(height * 0.10)
 
     img_mrz = image[y : y + h, x : x + w]
     img_mrz = cv2.GaussianBlur(img_mrz, (3, 3), 0)
@@ -90,9 +90,9 @@ def read_x_axis_label(image):
 
     text = pytesseract.image_to_string(img_mrz, config="--psm 6 --oem 3")
 
-    pattern = r"(\w+)\s*\[([^\]]+)\]"
-    label = re.findall(pattern, text)
-    return label
+    # pattern = r"(\w+)\s*\[([^\]]+)\]"
+    # label = re.findall(pattern, text)
+    return text
 
 
 def read_y_axis_label(image):
@@ -113,9 +113,9 @@ def read_y_axis_label(image):
 
     text = pytesseract.image_to_string(rotated_image, config="--psm 6 --oem 3")
 
-    pattern = r"(\w+)\s*\[([^\]]+)\]"
-    label = re.findall(pattern, text)
-    return label
+    # pattern = r"(\w+)\s*\[([^\]]+)\]"
+    # label = re.findall(pattern, text)
+    return text
 
 
 def read_ticks(image, digits_only=1):
@@ -128,7 +128,7 @@ def read_ticks(image, digits_only=1):
         image, config=options, output_type=Output.DATAFRAME
     )
 
-    filtered_text = text.loc[text["conf"] > 50, "text"]
+    filtered_text = text.loc[text["conf"] > 75, "text"]
     extracted_numbers = " ".join(
         " ".join(re.findall(r"-?\b\d+\b(?:\.\d+)?", str(item).strip()))
         for item in filtered_text
