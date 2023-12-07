@@ -384,13 +384,15 @@ dot_colors = [
 figsize_widths = [3.2, 4.8, 6.4]
 figsize_heights = [2.4, 3.2, 4.8]
 background_colors = ["white", "#F5F5F5", "#D3D3D3"]
-fig_dpis = [100, 200, 300]
+fig_dpis = [200, 150, 100]
 
 font_types = ["DejaVu Sans", "sans-serif", "serif"]
 font_styles = ["normal", "italic", "oblique"]
 font_weights = ["normal", "bold", "light"]
 
 plotting_tools = ["plt", "sns"]
+
+notation_styles = ["sci", "plain"]
 
 alpha_min = 0.7
 alpha_max = 0.9
@@ -419,8 +421,8 @@ def create_data(start, end, folder):
         font_type = random.choice(font_types)
 
         if TRAINING_MODE:
-            font_style = "normal"
-            font_weight = "normal"
+            font_style = random.choice(font_styles)
+            font_weight = random.choice(font_weights)
         else:
             font_style = random.choice(font_styles)
             font_weight = random.choice(font_weights)
@@ -431,10 +433,14 @@ def create_data(start, end, folder):
         # Define figure size, background colour and dpi
         background_color = random.choice(background_colors)
 
+        # Define the notation of the ticks
+        notation_style = random.choice(notation_styles)
+
         if TRAINING_MODE:
-            figsize_width = FIGSIZE_WIDTH_TRAINING_MODE
-            figsize_height = FIGSIZE_HEIGHT_TRAINING_MODE
-            dpi = DPI_TRAINING_MODE
+            int_dpi_figsize = random.randint(0, 2)
+            dpi = fig_dpis[int_dpi_figsize]
+            figsize_width = figsize_widths[int_dpi_figsize]
+            figsize_height = figsize_heights[int_dpi_figsize]
 
         else:
             figsize_width = random.choice(figsize_widths)
@@ -463,8 +469,16 @@ def create_data(start, end, folder):
             # Create series
             name = random.choice(legends)
             points_serie = max(num_points // num_series + np.random.randint(-2, 2), 1)
-            x_data = np.round(np.random.rand(points_serie) * xlim, decimals=1)
-            y_data = np.round(np.random.rand(points_serie) * ylim, decimals=1)
+            x_data = np.round(
+                (np.random.rand(points_serie) - np.random.rand(points_serie) * 0.5)
+                * xlim,
+                decimals=1,
+            )
+            y_data = np.round(
+                (np.random.rand(points_serie) - np.random.rand(points_serie) * 0.5)
+                * ylim,
+                decimals=1,
+            )
             marker = random.choice(markers)
             dot_color = random.choice(dot_colors)
             series.append(
@@ -509,7 +523,7 @@ def create_data(start, end, folder):
         plot_title = random.choice(adjectives) + " " + random.choice(nouns)
         ax.set_title(plot_title)
         ax.set_facecolor(background_color)
-
+        ax.ticklabel_format(axis="both", style=notation_style, scilimits=(0,0))
         # Decide whether tickmarks are shown
         tickmark_remove_switch = random.choices([False, True], weights=[0.7, 0.3])[0]
 

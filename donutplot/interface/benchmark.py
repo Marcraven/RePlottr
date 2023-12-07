@@ -83,14 +83,19 @@ for i in range(len(gt)):
 failed_fraction = failed_ones * 100 / len(gt)
 precision_mean = sum(precision_list) / len(precision_list)
 recall_mean = sum(recall_list) / len(recall_list)
-error_mean = sum(error_list) / len(error_list)
+error_mean = np.mean(np.array(error_list))
+error_max = np.max(np.array(error_list))
+error_median = np.median(np.array(error_list))
 
 print(
-    f"""Number of images use for the benchmark:{len(gt)}
+    f"""
+    Number of images use for the benchmark:{len(gt)}
     Failed: {failed_fraction}%
     Figure size = {FIGSIZE_WIDTH_TRAINING_MODE} x {FIGSIZE_HEIGHT_TRAINING_MODE} inches
     Resolution = {DPI_TRAINING_MODE} DPI
     Mean precision = {precision_mean}%
     Mean recall = {recall_mean}%
-    Mean spatial error is {error_mean}%"""
+    Mean spatial error is {error_mean}%
+    Max spatial error is {error_max}%
+    Median spatial error is {error_median}%"""
 )
