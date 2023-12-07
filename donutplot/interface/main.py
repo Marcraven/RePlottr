@@ -15,7 +15,7 @@ from donutplot.params import TRAIN_PATH
 model = YoloModel()
 
 file_name = "0003"
-image = os.path.join(TRAIN_PATH, f"{file_name}.jpg")  # "data/train/0004.jpg"
+image = os.path.join(TRAIN_PATH, f"{file_name}.jpg")
 
 yolo_data, yolo_xticks, yolo_yticks = model.predict(image)
 columns = max(len(yolo_xticks), len(yolo_yticks))
