@@ -605,10 +605,8 @@ def create_data(start, end, folder):
         }
         metadata_list.append(metadata)
 
-        ##### Define Yolo target #####
+        # Define Yolo target
         yolo_target = np.empty((0, 5))
-
-        ##### Add position coordinates of x axis ticks and y axis ticks to Yolo putput #####
 
         # Convert data coordinates to pixel coordinates
         x_ticks_pixel = ax.transData.transform([[x, y_lim_min] for x in x_ticks_data])
@@ -710,10 +708,9 @@ def create_data(start, end, folder):
         plt.cla()
         plt.close()
 
-    # File path for the JSONL file
+    # Generate JSONL file
     file_path = os.path.join(folder, "metadata.jsonl")
 
-    # Writing data to the JSONL file
     with open(file_path, "w") as file:
         for item in metadata_list:
             json.dump(item, file, default=str)  # Use str() for non-serializable objects
@@ -751,7 +748,9 @@ def create_data(start, end, folder):
 
     with open(yaml_path, "w") as file:
         for each in lines:
-            file.writelines(f"\n{each}")
+            file.writelines(
+                f"\n{each}"
+            )  # Add a newline character to separate YAML lines
 
 
 ##### Define data generation steps #####
@@ -790,21 +789,3 @@ if __name__ == "__main__":
     # Print run time
     end_time = time.time()
     print("Data generaion took " + str(round(end_time - start_time)) + " seconds")
-
-    # data_dir = "./data"
-    # train_dir = data_dir + "/train/"
-    # val_dir = data_dir + "/validation/"
-    # test_dir = data_dir + "/test/"
-
-    # Creat folders and generate files
-    # print("Starting training data creation...")
-    # os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
-    # create_data(START_INDEX, START_INDEX + TRAIN_SIZE, train_dir)
-
-    # print("Starting validation data creation...")
-    # os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
-    # create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * VAL_SPLIT), val_dir)
-
-    # print("Starting test data creation...")
-    # os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
-    # create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * TEST_SPLIT), test_dir)
