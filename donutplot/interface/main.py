@@ -9,11 +9,13 @@ from donutplot.ml_logic.merge import merge
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
+from donutplot.params import TRAIN_PATH
+import os
 from donutplot.params import *
 
 model = YoloModel()
 
-image = os.path.join(TEST_PATH, "0004.jpg")
+image = "data/train/0004.jpg"
 yolo_data, yolo_xticks, yolo_yticks = model.predict(image)
 columns = max(len(yolo_xticks), len(yolo_yticks))
 
@@ -75,6 +77,8 @@ for j, box in enumerate(yolo_yticks):
     )
     plt.xticks([])
     plt.yticks([])
+
+plt.show()
 
 data_dicts = merge(yolo_data, x_ticks_values, y_ticks_values)
 
