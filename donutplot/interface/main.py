@@ -8,11 +8,15 @@ from donutplot.ml_logic.ocr.ocr import (
 from donutplot.ml_logic.merge import merge
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+import os
+from donutplot.params import TRAIN_PATH
 
 
 model = YoloModel()
 
-image = "data/train/0004.jpg"
+file_name = "0003"
+image = os.path.join(TRAIN_PATH, f"{file_name}.jpg")  # "data/train/0004.jpg"
+
 yolo_data, yolo_xticks, yolo_yticks = model.predict(image)
 columns = max(len(yolo_xticks), len(yolo_yticks))
 
