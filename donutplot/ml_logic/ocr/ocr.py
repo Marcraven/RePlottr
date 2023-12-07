@@ -118,7 +118,7 @@ def read_y_axis_label(image):
     return text
 
 
-def read_ticks(image, digits_only=1):
+def read_ticks(image, digits_only=1, confidence=75):
     image = preprocess_image(image)
     options = ""
     if digits_only:
@@ -128,7 +128,7 @@ def read_ticks(image, digits_only=1):
         image, config=options, output_type=Output.DATAFRAME
     )
 
-    filtered_text = text.loc[text["conf"] > 75, "text"]
+    filtered_text = text.loc[text["conf"] > confidence, "text"]
     extracted_numbers = " ".join(
         " ".join(re.findall(r"-?\b\d+\b(?:\.\d+)?", str(item).strip()))
         for item in filtered_text
