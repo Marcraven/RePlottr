@@ -12,7 +12,7 @@ import matplotlib.image as mpimg
 
 model = YoloModel()
 
-image = "data/train/0002.jpg"
+image = "data/train/0004.jpg"
 yolo_data, yolo_xticks, yolo_yticks = model.predict(image)
 columns = max(len(yolo_xticks), len(yolo_yticks))
 
@@ -20,14 +20,21 @@ columns = max(len(yolo_xticks), len(yolo_yticks))
 plt.figure(1)
 
 nticks = 0
-confidence = 100
+confidence = 95
+crop = 1
+k = 0
 while nticks < 2 and confidence > 0:
-    confidence -= 5
+    if k % 3 == 0:
+        confidence -= 5
+        crop = 1
+    else:
+        crop -= 0.3
     print(f"Trying xticks with confidence {confidence}")
     x_ticks_values = []
     for i, box in enumerate(yolo_xticks):
-        x_ticks_values.append(read_ticks(box, confidence=confidence))
+        x_ticks_values.append(read_ticks(box, confidence=confidence, crop=crop))
     nticks = len([item for item in x_ticks_values if item != ""])
+    k += 1
 
 
 for i, box in enumerate(yolo_xticks):
@@ -41,14 +48,21 @@ for i, box in enumerate(yolo_xticks):
     plt.yticks([])
 
 nticks = 0
-confidence = 100
+confidence = 95
+crop = 1
+k = 0
 while nticks < 2 and confidence > 0:
-    confidence -= 5
-    print(f"Trying yticks with confidence {confidence}")
+    if k % 3 == 0:
+        confidence -= 5
+        crop = 1
+    else:
+        crop -= 0.3
+    print(f"Trying yticks with confidence {confidence} and crop {crop}")
     y_ticks_values = []
     for j, box in enumerate(yolo_yticks):
-        y_ticks_values.append(read_ticks(box, confidence=confidence))
+        y_ticks_values.append(read_ticks(box, confidence=confidence, crop=crop))
     nticks = len([item for item in y_ticks_values if item != ""])
+    k += 1
 
 
 for j, box in enumerate(yolo_yticks):
