@@ -1,13 +1,14 @@
 from ultralytics import YOLO
 from ultralytics.engine.results import save_one_box
 import torch
+import os
 from donutplot.params import *
-
-best_pt_path = BEST_PT_PATH
 
 
 class YoloModel:
-    def __init__(self, initial_weights_path=best_pt_path + "best.pt") -> None:
+    def __init__(
+        self, initial_weights_path=os.path.join(BEST_PT_PATH, "best.pt")
+    ) -> None:
         self.weights = initial_weights_path
 
     def predict(self, scatterpath):
