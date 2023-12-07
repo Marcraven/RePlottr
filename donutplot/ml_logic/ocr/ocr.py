@@ -118,7 +118,7 @@ def read_y_axis_label(image):
     return text
 
 
-def read_ticks(image, digits_only=1, confidence=75, crop=1):
+def read_ticks(image, digits_only=1, confidence=90, crop=1):
     image = preprocess_image(image)
     margin = (1 - crop) / 4
     xmargin = int(margin * image.shape[0])

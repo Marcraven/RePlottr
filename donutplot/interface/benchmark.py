@@ -74,10 +74,11 @@ for i in range(len(gt)):
         precision = round(sum(correctly_assigned) * 100 / len(correctly_assigned), 2)
         recall = round(true_positives * 100 / original_points, 2)
         error = round(np.mean(distances) * 100, 2)
-        if
+
         precision_list.append(precision)
         recall_list.append(recall)
         error_list.append(error)
+        print(f"Image {i+1} of {len(gt)}")
 
 failed_fraction = failed_ones * 100 / len(gt)
 precision_mean = sum(precision_list) / len(precision_list)
@@ -85,6 +86,11 @@ recall_mean = sum(recall_list) / len(recall_list)
 error_mean = sum(error_list) / len(error_list)
 
 print(
-    f"Number of images use for the benchmark:{len(gt)} \nFailed fraction scans:{failed_fraction} \nMean precision = {precision_mean}% \nMean recall = {recall_mean}% \nMean spatial error is {error_mean}%"
+    f"""Number of images use for the benchmark:{len(gt)}
+    Failed: {failed_fraction}%
+    Figure size = {FIGSIZE_WIDTH_TRAINING_MODE} x {FIGSIZE_HEIGHT_TRAINING_MODE} inches
+    Resolution = {DPI_TRAINING_MODE} DPI
+    Mean precision = {precision_mean}%
+    Mean recall = {recall_mean}%
+    Mean spatial error is {error_mean}%"""
 )
-breakpoint()

@@ -19,6 +19,7 @@ class YoloModel:
             scatterpath,
             save=False,
             # imgsz=320,
+            verbose=False,
         )
 
         x_tick_box = []

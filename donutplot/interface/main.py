@@ -9,15 +9,13 @@ from donutplot.ml_logic.merge import merge
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
-from donutplot.params import TRAIN_PATH
-import os
 from donutplot.params import *
 
 model = YoloModel()
 
-image = "data/train/0004.jpg"
+image = os.path.join(TEST_PATH, "0018.jpg")
 yolo_data, yolo_xticks, yolo_yticks = model.predict(image)
-columns = max(len(yolo_xticks), len(yolo_yticks))
+columns = 4  # max(len(yolo_xticks), len(yolo_yticks))
 
 
 plt.figure(1)
@@ -28,7 +26,7 @@ crop = 1
 k = 0
 while nticks < 2 and confidence >= 0:
     if k % 2 == 0:
-        confidence -= 20
+        confidence -= 5
         crop = 1
     else:
         crop -= 0.50
@@ -41,11 +39,11 @@ while nticks < 2 and confidence >= 0:
 
 
 for i, box in enumerate(yolo_xticks):
-    plt.subplot(2, columns, i + 1)
+    plt.subplot(3, columns, i + 1)
     plt.imshow(box)
     conf = round(float(yolo_data[yolo_data[:, 0] == 0, :][i, 1]), 2)
     plt.xlabel(
-        f"value: {x_ticks_values[i]} \nconf_box: {conf} \nconf_ocr: {confidence}"
+        f"value: {x_ticks_values[i]}"  # \nconf_box: {conf} \nconf_ocr: {confidence}"
     )
     plt.xticks([])
     plt.yticks([])
@@ -56,7 +54,7 @@ crop = 1
 k = 0
 while nticks < 2 and confidence >= 0:
     if k % 2 == 0:
-        confidence -= 20
+        confidence -= 5
         crop = 1
     else:
         crop -= 0.50
@@ -69,16 +67,15 @@ while nticks < 2 and confidence >= 0:
 
 
 for j, box in enumerate(yolo_yticks):
-    plt.subplot(2, columns, j + i + 2)
+    plt.subplot(3, columns, j + i + 2)
     plt.imshow(box)
     conf = round(float(yolo_data[yolo_data[:, 0] == 1, :][j, 1]), 2)
     plt.xlabel(
-        f"value: {y_ticks_values[j]} \nconf_box: {conf} \nconf_ocr: {confidence}"
+        f"value: {y_ticks_values[j]}"  # \nconf_box: {conf} \nconf_ocr: {confidence}"
     )
     plt.xticks([])
     plt.yticks([])
 
-plt.show()
 
 data_dicts = merge(yolo_data, x_ticks_values, y_ticks_values)
 
