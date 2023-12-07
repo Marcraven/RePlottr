@@ -12,68 +12,32 @@ import matplotlib.image as mpimg
 
 model = YoloModel()
 
-image = "data/train/0004.jpg"
+image = "data/train/0000.jpg"
 yolo_data, yolo_xticks, yolo_yticks = model.predict(image)
 columns = max(len(yolo_xticks), len(yolo_yticks))
 
-
+x_ticks_values = []
+y_ticks_values = []
 plt.figure(1)
 
-nticks = 0
-confidence = 95
-crop = 1
-k = 0
-while nticks < 2 and confidence > 0:
-    if k % 3 == 0:
-        confidence -= 5
-        crop = 1
-    else:
-        crop -= 0.3
-    print(f"Trying xticks with confidence {confidence}")
-    x_ticks_values = []
-    for i, box in enumerate(yolo_xticks):
-        x_ticks_values.append(read_ticks(box, confidence=confidence, crop=crop))
-    nticks = len([item for item in x_ticks_values if item != ""])
-    k += 1
-
-
 for i, box in enumerate(yolo_xticks):
+    x_ticks_values.append(read_ticks(box))
     plt.subplot(2, columns, i + 1)
     plt.imshow(box)
     conf = round(float(yolo_data[yolo_data[:, 0] == 0, :][i, 1]), 2)
-    plt.xlabel(
-        f"value: {x_ticks_values[i]} \nconf_box: {conf} \nconf_ocr: {confidence}"
-    )
+    plt.xlabel(f"value: {x_ticks_values[i]} \n conf_box:{conf}")
     plt.xticks([])
     plt.yticks([])
 
-nticks = 0
-confidence = 95
-crop = 1
-k = 0
-while nticks < 2 and confidence > 0:
-    if k % 3 == 0:
-        confidence -= 5
-        crop = 1
-    else:
-        crop -= 0.3
-    print(f"Trying yticks with confidence {confidence} and crop {crop}")
-    y_ticks_values = []
-    for j, box in enumerate(yolo_yticks):
-        y_ticks_values.append(read_ticks(box, confidence=confidence, crop=crop))
-    nticks = len([item for item in y_ticks_values if item != ""])
-    k += 1
-
-
 for j, box in enumerate(yolo_yticks):
+    y_ticks_values.append(read_ticks(box))
     plt.subplot(2, columns, j + i + 2)
     plt.imshow(box)
     conf = round(float(yolo_data[yolo_data[:, 0] == 1, :][j, 1]), 2)
-    plt.xlabel(
-        f"value: {y_ticks_values[j]} \nconf_box: {conf} \nconf_ocr: {confidence}"
-    )
+    plt.xlabel(f"value: {y_ticks_values[j]} \n conf_box:{conf}")
     plt.xticks([])
     plt.yticks([])
+
 
 data_dicts = merge(yolo_data, x_ticks_values, y_ticks_values)
 
