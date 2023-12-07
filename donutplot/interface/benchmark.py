@@ -86,7 +86,8 @@ recall_mean = sum(recall_list) / len(recall_list)
 error_mean = sum(error_list) / len(error_list)
 
 print(
-    f"""Number of images use for the benchmark:{len(gt)}
+    f"""
+    Number of images use for the benchmark:{len(gt)}
     Failed: {failed_fraction}%
     Figure size = {FIGSIZE_WIDTH_TRAINING_MODE} x {FIGSIZE_HEIGHT_TRAINING_MODE} inches
     Resolution = {DPI_TRAINING_MODE} DPI
@@ -94,3 +95,4 @@ print(
     Mean recall = {recall_mean}%
     Mean spatial error is {error_mean}%"""
 )
+breakpoint()
