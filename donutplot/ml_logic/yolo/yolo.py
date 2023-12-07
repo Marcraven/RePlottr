@@ -52,10 +52,10 @@ class YoloModel:
             scatterpath,
             save=False,
             imgsz=320,
-            # save_txt=True,
-            # save_conf=True,
-            # save_frames=True,
-            # save_crop=True,
+            save_txt=True,
+            save_conf=True,
+            save_frames=True,
+            save_crop=True,
         )
         print(datetime.datetime.now() - now)
         x_tick_box = []
@@ -140,6 +140,7 @@ class YoloModel:
         result = self.local.val(
             data=os.path.join(DATA_PATH, "dataset.yaml"), split="test"
         ).results_dict["metrics/mAP50(B)"]
+        self.yolo.export()
         if result > self.mp50:
             print("Model is better than previous. Registering in Comet.")
 
