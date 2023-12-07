@@ -1,3 +1,5 @@
+import os
+
 ##### Train mode (data generation) ######
 TRAINING_MODE = True
 FIGSIZE_WIDTH_TRAINING_MODE = 3.2
@@ -11,7 +13,7 @@ PATIENCE = 10
 
 
 ##### Data generation ######
-TRAIN_SIZE = 100
+TRAIN_SIZE = 5
 VAL_SPLIT = 0.2
 TEST_SPLIT = 0.2
 
@@ -28,8 +30,17 @@ NUM_POINTS_MAX = 60
 
 START_INDEX = 0
 
-##### Yolo target draw boxes #####
-SOURCE_PATH = "./data/train/"
-SAVE_PATH = "./data/train/boxed/"
-TEST_PATH = "./data/test/"
-BEST_PT_PATH = "donutplot/ml_logic/yolo/"
+##### Paths #####
+DATA_PATH = os.path.expanduser("~/.donutplot/data/")
+TRAIN_PATH = os.path.join(DATA_PATH, "train")
+VALIDATE_PATH = os.path.join(DATA_PATH, "validate")
+TEST_PATH = os.path.join(DATA_PATH, "test")
+
+
+BEST_PT_PATH = os.path.expanduser(
+    "~/donutplot/ml_logic/yolo/"
+)  # "donutplot/ml_logic/yolo/"
+
+
+SOURCE_PATH = TRAIN_PATH
+BOX_PATH = os.path.join(DATA_PATH, "boxed")

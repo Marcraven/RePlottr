@@ -6,27 +6,12 @@ import random
 import os
 import sys
 import json
+import yaml
 import time
-from donutplot.params import (
-    TRAINING_MODE,
-    FIGSIZE_WIDTH_TRAINING_MODE,
-    FIGSIZE_HEIGHT_TRAINING_MODE,
-    DPI_TRAINING_MODE,
-    TRAIN_SIZE,
-    VAL_SPLIT,
-    TEST_SPLIT,
-    XLIM_LOW,
-    XLIM_HIGH,
-    YLIM_LOW,
-    YLIM_HIGH,
-    NUM_SERIES_MIN,
-    NUM_SERIES_MAX,
-    NUM_POINTS_MIN,
-    NUM_POINTS_MAX,
-    START_INDEX,
-)
+import multiprocessing
+from donutplot.params import *
 
-##### Define constants ####
+##### Define constants #####
 labels = [
     "Length [nm]",
     "Size [um]",
@@ -556,11 +541,11 @@ def create_data(start, end, folder):
         fig.tight_layout()
 
         # Create file name
-        fname = folder + str(j).zfill(4)
+        fname = os.path.join(folder, f"{str(j).zfill(4)}.jpg")
 
         # Save the plot with smaller margins
         fig.savefig(
-            fname + ".jpg",
+            fname,
             dpi=dpi,
         )
 
@@ -713,7 +698,12 @@ def create_data(start, end, folder):
             )
 
         # Save Yolo target in txt format that is read by Yolo model
-        np.savetxt(fname + ".txt", yolo_target, delimiter=" ", fmt="%1.4f")
+        np.savetxt(
+            os.path.join(folder, f"{str(j).zfill(4)}.txt"),
+            yolo_target,
+            delimiter=" ",
+            fmt="%1.4f",
+        )
 
         # Clean figure, axes and close figure
         plt.clf()
@@ -721,7 +711,7 @@ def create_data(start, end, folder):
         plt.close()
 
     # File path for the JSONL file
-    file_path = folder + "/metadata.jsonl"
+    file_path = os.path.join(folder, "metadata.jsonl")
 
     # Writing data to the JSONL file
     with open(file_path, "w") as file:
@@ -729,11 +719,36 @@ def create_data(start, end, folder):
             json.dump(item, file, default=str)  # Use str() for non-serializable objects
             file.write("\n")  # Add a newline character to separate JSON objects
 
+    # Generate YAML file
+    name_list = ["x-ticks", "y-ticks"]
+    name_list.extend(markers)
+    name_dict = dict(enumerate(name_list))
+    yaml_dict = {
+        "train": "train/",
+        "val": "validation/",
+        "test": "test/",
+        "names": name_dict,
+    }
+    yaml_path = os.path.join(DATA_PATH, "dataset.yaml")
+
+    with open(yaml_path, "w") as file:
+        yaml.dump(yaml_dict, file, default_flow_style=False)
+
+
+##### Define data generation steps #####
+def generate_data(data_type, start_index, size, directory):
+    print(f"Starting {data_type} data creation...")
+    os.makedirs(directory, exist_ok=True)
+    create_data(start_index, start_index + size, directory)
+
 
 ##### If name = main #####
 if __name__ == "__main__":
     # Record start time
     start_time = time.time()
+
+    # Calculate CPU cores
+    num_cores = multiprocessing.cpu_count()
 
     # Turn interactive mode off
     plt.ioff()
@@ -742,24 +757,35 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         TRAIN_SIZE = int(sys.argv[1])
 
-    data_dir = "./data"
-    train_dir = data_dir + "/train/"
-    val_dir = data_dir + "/validation/"
-    test_dir = data_dir + "/test/"
+    # Define tasks
+    tasks = [
+        ("train", START_INDEX, TRAIN_SIZE, TRAIN_PATH),
+        ("validation", START_INDEX, int(TRAIN_SIZE * VAL_SPLIT), VALIDATE_PATH),
+        ("test", START_INDEX, int(TRAIN_SIZE * TEST_SPLIT), TEST_PATH),
+    ]
 
-    # Creat folders and generate files
-    print("Starting training data creation...")
-    os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
-    create_data(START_INDEX, START_INDEX + TRAIN_SIZE, train_dir)
-
-    print("Starting validation data creation...")
-    os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
-    create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * VAL_SPLIT), val_dir)
-
-    print("Starting test data creation...")
-    os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
-    create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * TEST_SPLIT), test_dir)
+    # Initiate multiprocessing
+    with multiprocessing.Pool(processes=num_cores) as pool:
+        pool.starmap(generate_data, tasks)
 
     # Print run time
     end_time = time.time()
     print("Data generaion took " + str(round(end_time - start_time)) + " seconds")
+
+    # data_dir = "./data"
+    # train_dir = data_dir + "/train/"
+    # val_dir = data_dir + "/validation/"
+    # test_dir = data_dir + "/test/"
+
+    # Creat folders and generate files
+    # print("Starting training data creation...")
+    # os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
+    # create_data(START_INDEX, START_INDEX + TRAIN_SIZE, train_dir)
+
+    # print("Starting validation data creation...")
+    # os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
+    # create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * VAL_SPLIT), val_dir)
+
+    # print("Starting test data creation...")
+    # os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
+    # create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * TEST_SPLIT), test_dir)
