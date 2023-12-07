@@ -20,16 +20,16 @@ columns = max(len(yolo_xticks), len(yolo_yticks))
 plt.figure(1)
 
 nticks = 0
-confidence = 95
+confidence = 100
 crop = 1
 k = 0
-while nticks < 2 and confidence > 0:
-    if k % 3 == 0:
-        confidence -= 5
+while nticks < 2 and confidence >= 0:
+    if k % 2 == 0:
+        confidence -= 20
         crop = 1
     else:
-        crop -= 0.3
-    print(f"Trying xticks with confidence {confidence}")
+        crop -= 0.50
+    print(f"Trying xticks with confidence {confidence} and crop {crop}")
     x_ticks_values = []
     for i, box in enumerate(yolo_xticks):
         x_ticks_values.append(read_ticks(box, confidence=confidence, crop=crop))
@@ -48,15 +48,15 @@ for i, box in enumerate(yolo_xticks):
     plt.yticks([])
 
 nticks = 0
-confidence = 95
+confidence = 100
 crop = 1
 k = 0
-while nticks < 2 and confidence > 0:
-    if k % 3 == 0:
-        confidence -= 5
+while nticks < 2 and confidence >= 0:
+    if k % 2 == 0:
+        confidence -= 20
         crop = 1
     else:
-        crop -= 0.3
+        crop -= 0.50
     print(f"Trying yticks with confidence {confidence} and crop {crop}")
     y_ticks_values = []
     for j, box in enumerate(yolo_yticks):
