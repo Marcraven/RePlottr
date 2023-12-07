@@ -79,6 +79,8 @@ for j, box in enumerate(yolo_yticks):
     plt.xticks([])
     plt.yticks([])
 
+plt.show()
+
 data_dicts = merge(yolo_data, x_ticks_values, y_ticks_values)
 
 markers = [

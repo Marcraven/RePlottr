@@ -417,8 +417,13 @@ def create_data(start, end, folder):
 
         # Define text properties
         font_type = random.choice(font_types)
-        font_style = random.choice(font_styles)
-        font_weight = random.choice(font_weights)
+
+        if TRAINING_MODE:
+            font_style = "normal"
+            font_weight = "normal"
+        else:
+            font_style = random.choice(font_styles)
+            font_weight = random.choice(font_weights)
 
         font = {"family": font_type, "style": font_style, "weight": font_weight}
         mpl.rc("font", **font)
