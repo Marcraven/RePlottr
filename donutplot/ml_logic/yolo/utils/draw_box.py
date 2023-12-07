@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 import os, os.path
-from donutplot.params import SOURCE_PATH, SAVE_PATH
+from donutplot.params import SOURCE_PATH, BOX_PATH
 
 ##### Define and import constants #####
 file_name = "0000"
@@ -38,14 +38,16 @@ colors = [
 def draw_boxes(
     file_name: str = file_name,
     source_path: str = SOURCE_PATH,
-    save_path: str = SAVE_PATH,
+    save_path: str = BOX_PATH,
 ):
     # Read TXT files and split the lines
-    with open(source_path + file_name + ".txt", "r") as file:
+    txt_file_name = os.path.join(source_path, f"{file_name}.txt")
+    with open(txt_file_name, "r") as file:
         file_contents = file.read().splitlines()
 
     # Read JPG files and save contents and pixels
-    img = cv2.imread(source_path + file_name + ".jpg")
+    img_file_name = os.path.join(source_path, f"{file_name}.jpg")
+    img = cv2.imread(img_file_name)
     x_pix = img.shape[1]
     y_pix = img.shape[0]
 
@@ -66,12 +68,13 @@ def draw_boxes(
         )
 
     # Write output image
-    cv2.imwrite(save_path + file_name + "_boxed.jpg", img)
+    output_name = os.path.join(save_path, f"{file_name}_boxed.jpg")
+    cv2.imwrite(output_name, img)
 
 
 ##### If name = main #####
 if __name__ == "__main__":
     print("Creating boxed files")
-    os.makedirs(SAVE_PATH, exist_ok=True) if not os.path.exists(SAVE_PATH) else None
+    os.makedirs(BOX_PATH, exist_ok=True)
 
     draw_boxes()

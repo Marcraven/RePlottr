@@ -3,6 +3,7 @@ data/
 notebooks/
 runs/
 donutplot/ml_logic/yolo/weights/
+donut/yolo_donut/
 
 # EXTRA
 TextRecognition/DonutApproach/result/

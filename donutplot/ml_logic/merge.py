@@ -28,6 +28,7 @@ def fit_the_scale(tick_coordinates, tick_values):
     tick_Xy = np.ndarray((0, 2))
     for i, x in enumerate(tick_values):
         if x != "":
+            breakpoint()
             tick_Xy = np.vstack(
                 (tick_Xy, np.array((float(tick_coordinates[i]), float(x))))
             )

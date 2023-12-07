@@ -13,7 +13,7 @@ data_please:
 	python donutplot/interface/CreateData.py
 
 clean_data:
-	rm -rf data
+	rm -rf ~/.donutplot/data
 
 train_yolo:
 	python donutplot/ml_logic/yolo/yolo.py
