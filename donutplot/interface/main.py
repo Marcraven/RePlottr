@@ -20,6 +20,24 @@ x_ticks_values = []
 y_ticks_values = []
 plt.figure(1)
 
+nticks = 0
+confidence = 100
+crop = 1
+k = 0
+while nticks < 2 and confidence >= 0:
+    if k % 2 == 0:
+        confidence -= 20
+        crop = 1
+    else:
+        crop -= 0.50
+    print(f"Trying xticks with confidence {confidence} and crop {crop}")
+    x_ticks_values = []
+    for i, box in enumerate(yolo_xticks):
+        x_ticks_values.append(read_ticks(box, confidence=confidence, crop=crop))
+    nticks = len([item for item in x_ticks_values if item != ""])
+    k += 1
+
+
 for i, box in enumerate(yolo_xticks):
     x_ticks_values.append(read_ticks(box))
     plt.subplot(2, columns, i + 1)
@@ -29,6 +47,27 @@ for i, box in enumerate(yolo_xticks):
     plt.xticks([])
     plt.yticks([])
 
+<<<<<<< HEAD
+=======
+nticks = 0
+confidence = 100
+crop = 1
+k = 0
+while nticks < 2 and confidence >= 0:
+    if k % 2 == 0:
+        confidence -= 20
+        crop = 1
+    else:
+        crop -= 0.50
+    print(f"Trying yticks with confidence {confidence} and crop {crop}")
+    y_ticks_values = []
+    for j, box in enumerate(yolo_yticks):
+        y_ticks_values.append(read_ticks(box, confidence=confidence, crop=crop))
+    nticks = len([item for item in y_ticks_values if item != ""])
+    k += 1
+
+
+>>>>>>> 237067dabc7dabff765c709d89e3dde4f5a89aff
 for j, box in enumerate(yolo_yticks):
     y_ticks_values.append(read_ticks(box))
     plt.subplot(2, columns, j + i + 2)
