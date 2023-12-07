@@ -13,7 +13,7 @@ PATIENCE = 5
 ##### Data generation ######
 TRAIN_SIZE = 1
 VAL_SPLIT = 1
-TEST_SPLIT = 100
+TEST_SPLIT = 20
 
 XLIM_LOW = -1000
 XLIM_HIGH = 2_000
