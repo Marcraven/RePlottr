@@ -32,9 +32,9 @@ def series_to_df(series):
     return df
 
 
-precision_list = np.ndarray(len(gt))
-recall_list = np.ndarray(len(gt))
-error_list = np.ndarray(len(gt))
+precision_list = []
+recall_list = []
+error_list = []
 
 failed_ones = 0
 for i in range(len(gt)):
@@ -74,16 +74,17 @@ for i in range(len(gt)):
         precision = round(sum(correctly_assigned) * 100 / len(correctly_assigned), 2)
         recall = round(true_positives * 100 / original_points, 2)
         error = round(np.mean(distances) * 100, 2)
+        if
+        precision_list.append(precision)
+        recall_list.append(recall)
+        error_list.append(error)
 
-        precision_list[i] = precision
-        recall_list[i] = recall
-        error_list[i] = error
-
-failed_fraction = failed_ones / len(gt)
-precision_mean = np.mean(precision_list)
-recall_mean = np.mean(recall_list)
-error_mean = np.mean(error_list)
+failed_fraction = failed_ones * 100 / len(gt)
+precision_mean = sum(precision_list) / len(precision_list)
+recall_mean = sum(recall_list) / len(recall_list)
+error_mean = sum(error_list) / len(error_list)
 
 print(
-    f"Number of images use for the benchmark:{len(gt)} \nMean precision = {precision_mean}% \nMean recall = {recall_mean}% \nMean spatial error is {error_mean}%"
+    f"Number of images use for the benchmark:{len(gt)} \nFailed fraction scans:{failed_fraction} \nMean precision = {precision_mean}% \nMean recall = {recall_mean}% \nMean spatial error is {error_mean}%"
 )
+breakpoint()

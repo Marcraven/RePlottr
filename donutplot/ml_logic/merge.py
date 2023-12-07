@@ -40,7 +40,6 @@ def merge(yolo_output, x_tick_values, y_tick_values):
     x_tick_coords = np.sort(yolo_output[yolo_output[:, 0] == 0, 2])
     y_tick_coords = np.sort(yolo_output[yolo_output[:, 0] == 1, 3])
     scatterpoints = yolo_output[yolo_output[:, 0] > 1, :]
-
     x_model = fit_the_scale(x_tick_coords, x_tick_values)
     y_model = fit_the_scale(y_tick_coords, y_tick_values)
 
