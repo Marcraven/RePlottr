@@ -3,7 +3,6 @@ import comet_ml
 import os
 import sys
 from comet_ml import API
-import ultralytics
 from ultralytics import YOLO
 from ultralytics.engine.results import save_one_box
 import comet_ml
@@ -11,12 +10,14 @@ import torch
 import datetime
 from donutplot.params import *
 
-currentdir = os.path.dirname(os.path.abspath(__file__)) + "/"
-
 
 class YoloModel:
-    def __init__(self, initial_weights_path=currentdir + "best.pt") -> None:
+    def __init__(self, initial_weights_path=BEST_PT_PATH + "best.pt") -> None:
         self.weights = initial_weights_path
+
+        self.workspace = os.environ["COMET_WORKSPACE_NAME"]
+        self.model_name = os.environ["COMET_MODEL_NAME"]
+        self.project = os.environ["COMET_PROJECT_NAME"]
 
     def train(self):
         """This loads a model and then trains it, the results are saved into Comet"""
@@ -28,12 +29,12 @@ class YoloModel:
             "batch_size": BATCH_SIZE,
             "imgsz": IMGSZ,
         }
-        workspace, model_name, project = self.load_environ()
+
         # Train the model
         self.yolo.train(
-            data=currentdir + "dataset.yaml",
-            name=model_name,
-            project=project,
+            data=os.path.join(DATA_PATH, "dataset.yaml"),
+            name=self.model_name,
+            project=self.project,
             amp=False,
             epochs=hyper_params["epochs"],
             patience=hyper_params["patience"],
@@ -104,10 +105,10 @@ class YoloModel:
             self.local = YOLO(self.weights)
         # else:
         api = API()
-        workspace, model_name, project = self.load_environ()
-        models = api.get_model(workspace=workspace, model_name=model_name)
+
+        models = api.get_model(workspace=self.workspace, model_name=self.model_name)
         last_version = models.find_versions()[0]
-        version_path = currentdir + "weights/" + last_version.replace(".", "_")
+        version_path = os.path.join(BEST_PT_PATH, last_version.replace(".", "_"))
         if os.path.exists(version_path) == False:
             os.makedirs(version_path)
             print("Downloading latest version...")
@@ -118,10 +119,10 @@ class YoloModel:
             )
         self.comet = YOLO(version_path + "/best.pt")
         mp50prod = self.comet.val(
-            data=currentdir + "dataset.yaml", split="test"
+            data=os.path.join(DATA_PATH, "dataset.yaml"), split="test"
         ).results_dict["metrics/mAP50(B)"]
         mp50local = self.local.val(
-            data=currentdir + "dataset.yaml", split="test"
+            data=os.path.join(DATA_PATH, "dataset.yaml"), split="test"
         ).results_dict["metrics/mAP50(B)"]
         if mp50prod < mp50local:
             self.yolo = self.local
@@ -137,32 +138,26 @@ class YoloModel:
     def save(self) -> YOLO:
         """This function saves the YOLO model locally and in Comet"""
         result = self.local.val(
-            data=currentdir + "dataset.yaml", split="test"
+            data=os.path.join(DATA_PATH, "dataset.yaml"), split="test"
         ).results_dict["metrics/mAP50(B)"]
         if result > self.mp50:
             print("Model is better than previous. Registering in Comet.")
-            workspace, model_name, project = self.load_environ()
+
             self.yolo.export()
             api = API()
-            experiments = api.get(workspace=workspace, project_name=project)
+            experiments = api.get(workspace=self.workspace, project_name=self.project)
             experiment = api.get(
-                workspace=workspace,
-                project_name=project,
+                workspace=self.workspace,
+                project_name=self.project,
                 experiment=experiments[-1]._name,
             )
             experiment.register_model(
-                model_name,
+                self.model_name,
                 status="Production",
                 description="mp50 = " + str(result),
             )
         else:
             print("Previous model was better. Results not saved in Comet.")
-
-    def load_environ(self):
-        workspace = os.environ["WORKSPACE"]
-        model_name = os.environ["MODEL_NAME"]
-        project = os.environ["COMET_PROJECT_NAME"]
-        return workspace, model_name, project
 
 
 if __name__ == "__main__":

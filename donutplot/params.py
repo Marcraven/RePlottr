@@ -6,9 +6,9 @@ FIGSIZE_WIDTH_TRAINING_MODE = 3.2
 FIGSIZE_HEIGHT_TRAINING_MODE = 2.4
 DPI_TRAINING_MODE = 300
 
-EPOCHS = 20
+EPOCHS = 1
 BATCH_SIZE = 2
-IMGSZ = 960
+IMGSZ = 120
 PATIENCE = 10
 
 
@@ -33,14 +33,11 @@ START_INDEX = 0
 ##### Paths #####
 DATA_PATH = os.path.expanduser("~/.donutplot/data/")
 TRAIN_PATH = os.path.join(DATA_PATH, "train")
-VALIDATE_PATH = os.path.join(DATA_PATH, "validate")
+VALIDATE_PATH = os.path.join(DATA_PATH, "validation")
 TEST_PATH = os.path.join(DATA_PATH, "test")
 
-
-BEST_PT_PATH = os.path.expanduser(
-    "~/donutplot/ml_logic/yolo/"
-)  # "donutplot/ml_logic/yolo/"
-
+BEST_PT_PATH = os.path.expanduser("~/.donutplot/weights/")
+os.makedirs(BEST_PT_PATH, exist_ok=True)
 
 SOURCE_PATH = TRAIN_PATH
 BOX_PATH = os.path.join(DATA_PATH, "boxed")

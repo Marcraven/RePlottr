@@ -720,19 +720,38 @@ def create_data(start, end, folder):
             file.write("\n")  # Add a newline character to separate JSON objects
 
     # Generate YAML file
-    name_list = ["x-ticks", "y-ticks"]
-    name_list.extend(markers)
-    name_dict = dict(enumerate(name_list))
-    yaml_dict = {
-        "train": "train/",
-        "val": "validation/",
-        "test": "test/",
-        "names": name_dict,
-    }
     yaml_path = os.path.join(DATA_PATH, "dataset.yaml")
+    lines = [
+        "train: train/",
+        "val: validation/",
+        "test: test/",
+        "names:",
+        f"\t0: x-ticks",
+        f"\t1: y-ticks",
+        f'\t2: "."',
+        f'\t3: "o"',
+        f'\t4: "v"',
+        f'\t5: "^"',
+        f'\t6: "<"',
+        f'\t7: ">"',
+        f'\t8: "1"',
+        f'\t9: "2"',
+        f'\t10: "3"',
+        f'\t11: "4"',
+        f'\t12: "s"',
+        f'\t13: "p"',
+        f'\t14: "*"',
+        f'\t15: "h"',
+        f'\t16: "H"',
+        f'\t17: "+"',
+        f'\t18: "x"',
+        f'\t19: "D"',
+        f'\t20: "d"',
+    ]
 
     with open(yaml_path, "w") as file:
-        yaml.dump(yaml_dict, file, default_flow_style=False)
+        for each in lines:
+            file.writelines(f"\n{each}")
 
 
 ##### Define data generation steps #####
