@@ -1,7 +1,7 @@
 FROM python:3.10-buster
 COPY setup.py setup.py
 COPY requirements.txt requirements.txt
-COPY best-n.pt ./donutplot/weights/best.pt
+COPY best-n.pt /home/.donutplot/weights/best.pt
 RUN pip install --upgrade pip
 RUN pip install -e .
 
