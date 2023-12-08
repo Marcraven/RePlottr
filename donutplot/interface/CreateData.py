@@ -6,27 +6,12 @@ import random
 import os
 import sys
 import json
+import yaml
 import time
-from donutplot.params import (
-    TRAINING_MODE,
-    FIGSIZE_WIDTH_TRAINING_MODE,
-    FIGSIZE_HEIGHT_TRAINING_MODE,
-    DPI_TRAINING_MODE,
-    TRAIN_SIZE,
-    VAL_SPLIT,
-    TEST_SPLIT,
-    XLIM_LOW,
-    XLIM_HIGH,
-    YLIM_LOW,
-    YLIM_HIGH,
-    NUM_SERIES_MIN,
-    NUM_SERIES_MAX,
-    NUM_POINTS_MIN,
-    NUM_POINTS_MAX,
-    START_INDEX,
-)
+import multiprocessing
+from donutplot.params import *
 
-##### Define constants ####
+##### Define constants #####
 labels = [
     "Length [nm]",
     "Size [um]",
@@ -432,8 +417,13 @@ def create_data(start, end, folder):
 
         # Define text properties
         font_type = random.choice(font_types)
-        font_style = random.choice(font_styles)
-        font_weight = random.choice(font_weights)
+
+        if TRAINING_MODE:
+            font_style = "normal"
+            font_weight = "normal"
+        else:
+            font_style = random.choice(font_styles)
+            font_weight = random.choice(font_weights)
 
         font = {"family": font_type, "style": font_style, "weight": font_weight}
         mpl.rc("font", **font)
@@ -556,11 +546,11 @@ def create_data(start, end, folder):
         fig.tight_layout()
 
         # Create file name
-        fname = folder + str(j).zfill(4)
+        fname = os.path.join(folder, f"{str(j).zfill(4)}.jpg")
 
         # Save the plot with smaller margins
         fig.savefig(
-            fname + ".jpg",
+            fname,
             dpi=dpi,
         )
 
@@ -620,10 +610,8 @@ def create_data(start, end, folder):
         }
         metadata_list.append(metadata)
 
-        ##### Define Yolo target #####
+        # Define Yolo target
         yolo_target = np.empty((0, 5))
-
-        ##### Add position coordinates of x axis ticks and y axis ticks to Yolo putput #####
 
         # Convert data coordinates to pixel coordinates
         x_ticks_pixel = ax.transData.transform([[x, y_lim_min] for x in x_ticks_data])
@@ -713,27 +701,77 @@ def create_data(start, end, folder):
             )
 
         # Save Yolo target in txt format that is read by Yolo model
-        np.savetxt(fname + ".txt", yolo_target, delimiter=" ", fmt="%1.4f")
+        np.savetxt(
+            os.path.join(folder, f"{str(j).zfill(4)}.txt"),
+            yolo_target,
+            delimiter=" ",
+            fmt="%1.4f",
+        )
 
         # Clean figure, axes and close figure
         plt.clf()
         plt.cla()
         plt.close()
 
-    # File path for the JSONL file
-    file_path = folder + "/metadata.jsonl"
+    # Generate JSONL file
+    file_path = os.path.join(folder, "metadata.jsonl")
 
-    # Writing data to the JSONL file
     with open(file_path, "w") as file:
         for item in metadata_list:
             json.dump(item, file, default=str)  # Use str() for non-serializable objects
             file.write("\n")  # Add a newline character to separate JSON objects
+
+    # Generate YAML file
+    yaml_path = os.path.join(DATA_PATH, "dataset.yaml")
+    lines = [
+        "train: train/",
+        "val: validation/",
+        "test: test/",
+        "names:",
+        f"\t0: x-ticks",
+        f"\t1: y-ticks",
+        f'\t2: "."',
+        f'\t3: "o"',
+        f'\t4: "v"',
+        f'\t5: "^"',
+        f'\t6: "<"',
+        f'\t7: ">"',
+        f'\t8: "1"',
+        f'\t9: "2"',
+        f'\t10: "3"',
+        f'\t11: "4"',
+        f'\t12: "s"',
+        f'\t13: "p"',
+        f'\t14: "*"',
+        f'\t15: "h"',
+        f'\t16: "H"',
+        f'\t17: "+"',
+        f'\t18: "x"',
+        f'\t19: "D"',
+        f'\t20: "d"',
+    ]
+
+    with open(yaml_path, "w") as file:
+        for each in lines:
+            file.writelines(
+                f"\n{each}"
+            )  # Add a newline character to separate YAML lines
+
+
+##### Define data generation steps #####
+def generate_data(data_type, start_index, size, directory):
+    print(f"Starting {data_type} data creation...")
+    os.makedirs(directory, exist_ok=True)
+    create_data(start_index, start_index + size, directory)
 
 
 ##### If name = main #####
 if __name__ == "__main__":
     # Record start time
     start_time = time.time()
+
+    # Calculate CPU cores
+    num_cores = multiprocessing.cpu_count()
 
     # Turn interactive mode off
     plt.ioff()
@@ -742,23 +780,16 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         TRAIN_SIZE = int(sys.argv[1])
 
-    data_dir = "./data"
-    train_dir = data_dir + "/train/"
-    val_dir = data_dir + "/validation/"
-    test_dir = data_dir + "/test/"
+    # Define tasks
+    tasks = [
+        ("train", START_INDEX, TRAIN_SIZE, TRAIN_PATH),
+        ("validation", START_INDEX, int(TRAIN_SIZE * VAL_SPLIT), VALIDATE_PATH),
+        ("test", START_INDEX, int(TRAIN_SIZE * TEST_SPLIT), TEST_PATH),
+    ]
 
-    # Creat folders and generate files
-    print("Starting training data creation...")
-    os.makedirs(train_dir, exist_ok=True) if not os.path.exists(train_dir) else None
-    create_data(START_INDEX, START_INDEX + TRAIN_SIZE, train_dir)
-
-    print("Starting validation data creation...")
-    os.makedirs(val_dir, exist_ok=True) if not os.path.exists(val_dir) else None
-    create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * VAL_SPLIT), val_dir)
-
-    print("Starting test data creation...")
-    os.makedirs(test_dir, exist_ok=True) if not os.path.exists(test_dir) else None
-    create_data(START_INDEX, START_INDEX + int(TRAIN_SIZE * TEST_SPLIT), test_dir)
+    # Initiate multiprocessing
+    with multiprocessing.Pool(processes=num_cores) as pool:
+        pool.starmap(generate_data, tasks)
 
     # Print run time
     end_time = time.time()

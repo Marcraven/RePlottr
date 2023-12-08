@@ -118,22 +118,8 @@ def read_y_axis_label(image):
     return text
 
 
-def read_ticks(image, digits_only=1, confidence=90, crop=1):
+def read_ticks(image, digits_only=1):
     image = preprocess_image(image)
-    margin = (1 - crop) / 4
-    xmargin = int(margin * image.shape[0])
-    ymargin = int(margin * image.shape[1])
-    image = image[
-        xmargin : image.shape[0] - xmargin,
-        ymargin : image.shape[1] - ymargin,
-    ]
-    image = np.pad(
-        image,
-        pad_width=((ymargin * 5, ymargin * 5), (xmargin * 5, xmargin * 5)),
-        mode="constant",
-        constant_values=255,
-    )
-
     options = ""
     if digits_only:
         options = "--psm 6 --oem 3 outputbase digits"
@@ -142,7 +128,7 @@ def read_ticks(image, digits_only=1, confidence=90, crop=1):
         image, config=options, output_type=Output.DATAFRAME
     )
 
-    filtered_text = text.loc[text["conf"] > confidence, "text"]
+    filtered_text = text.loc[text["conf"] > 75, "text"]
     extracted_numbers = " ".join(
         " ".join(re.findall(r"-?\b\d+\b(?:\.\d+)?", str(item).strip()))
         for item in filtered_text

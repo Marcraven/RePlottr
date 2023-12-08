@@ -25,6 +25,9 @@ def hello_world():
     return {"Hello World"}
 
 
+# reception, decoding, and processing of an image file.
+
+
 @app.post("/predict")
 async def receive_image(img: UploadFile = File(...)):
     ### Receiving and decoding the image

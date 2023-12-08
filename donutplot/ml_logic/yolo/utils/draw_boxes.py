@@ -1,12 +1,12 @@
 from donutplot.ml_logic.yolo.utils.draw_box import draw_boxes
 import os, os.path
-from donutplot.params import SOURCE_PATH, SAVE_PATH
+from donutplot.params import SOURCE_PATH, BOX_PATH
 
 
 ##### Draw boxes on all  images found in source folder and save them in save folder #####
 def draw_boxes_all_files(
     source_path: str = SOURCE_PATH,
-    save_path: str = SAVE_PATH,
+    save_path: str = BOX_PATH,
 ):
     # Create list with JPG files in source folder
     jpg_file_list = [file for file in os.listdir(source_path) if file.endswith(".jpg")]
@@ -23,6 +23,6 @@ def draw_boxes_all_files(
 ##### If name = main #####
 if __name__ == "__main__":
     print("Creating boxed files")
-    os.makedirs(SAVE_PATH, exist_ok=True) if not os.path.exists(SAVE_PATH) else None
+    os.makedirs(BOX_PATH, exist_ok=True)
 
     draw_boxes_all_files()

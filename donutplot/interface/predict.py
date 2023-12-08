@@ -6,7 +6,6 @@ from donutplot.ml_logic.ocr.ocr import (
     read_ticks,
 )
 from donutplot.ml_logic.merge import merge
-import json
 
 model = YoloModel()
 
