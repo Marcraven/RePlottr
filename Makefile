@@ -20,3 +20,8 @@ train_yolo:
 
 benchmark:
 	python donutplot/interface/benchmark.py
+
+clean_create_benchmark:
+	rm -rf ~/.donutplot/data
+	python donutplot/interface/CreateData.py
+	python donutplot/interface/benchmark.py

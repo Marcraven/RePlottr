@@ -26,9 +26,9 @@ def make_prediction(image):
         conf = round(float(yolo_data[yolo_data[:, 0] == 1, :][j, 1]), 2)
 
     nxticks = len([item for item in x_ticks_values if item != ""])
-    print(f"nxticks is {nxticks}")
+
     nyticks = len([item for item in y_ticks_values if item != ""])
-    print(f"nyticks is {nyticks}")
+
     if (nxticks < 2) or (nyticks < 2):
         return "failed"
     data_dicts = merge(yolo_data, x_ticks_values, y_ticks_values)
