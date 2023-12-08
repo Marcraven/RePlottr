@@ -1,134 +1,153 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image
-from io import BytesIO
-import time
-import numpy as np
-import plotly.figure_factory as ff
-import plotly.express as px
 import requests
 import json
+import plotly.express as px
 
-st.set_page_config(
-    page_title="RePlottr",
-    page_icon="📈",
-    layout="wide",
-)
+# Page configuration
+st.set_page_config(page_title="RePlottr", page_icon="📈", layout="wide")
 
+# Page title and subheader
 st.title("RePlottr 📈")
 st.subheader("Making data extraction from scatterplots easy")
 
 # Production API URL
-API_URL = "https://donutplot-uz3lg33nzq-no.a.run.app"
+# API_URL = "https://donutplot-uz3lg33nzq-no.a.run.app"
+# Fallback API URL (for testing purposes)
 API_URL = "http://127.0.0.1:8000"
 
+# File uploader
 img_file_buffer = st.file_uploader("Upload an image to get started")
 
 
+def display_uploaded_image(image_buffer):
+    st.image(Image.open(image_buffer), caption="Here's the image you uploaded ☝️")
+
+
+def make_api_request(url, img_bytes):
+    return requests.post(url, files={"img": img_bytes})
+
+
+def process_api_response(response):
+    if response.status_code == 200:
+        return response.json()
+    else:
+        st.error("Failed to process image. Please try again.")
+        return None
+
+
+def request_tick_data(api_url, tick_data):
+    return requests.post(api_url + "/process_ticks", json=tick_data)
+
+
+def generate_plot(df, plot_title, x_label, y_label):
+    fig = px.scatter(
+        df,
+        x="x_values",
+        y="y_values",
+        color="Marker",
+        title=plot_title,
+        labels={"x_values": x_label, "y_values": y_label},
+    )
+    st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+
+
+def generate_json(df, title, x_label, y_label):
+    df_json = df.to_json(orient="records")
+    output_json = {
+        "title": title,
+        "x_label": x_label,
+        "y_label": y_label,
+        "data": json.loads(df_json),
+    }
+    st.session_state["download_json"] = json.dumps(output_json, indent=4)
+
+
 def main():
-    pass
+    if img_file_buffer is not None:
+        col1, col2 = st.columns([2, 3])
+        img_bytes = img_file_buffer.getvalue()
+
+        with col1:
+            display_uploaded_image(img_file_buffer)
+
+        with col2:
+            with st.spinner("Processing ... 🤔"):
+                response = make_api_request(API_URL + "/predict", img_bytes)
+                response_data = process_api_response(response)
+
+            if response_data:
+                handle_response(response_data)
 
 
-if img_file_buffer is not None:
-    col1, col2 = st.columns([2, 3])
+def handle_response(data):
+    if data.get("status") == "input_required":
+        handle_input_required(data)
+    elif data.get("status") == "success":
+        handle_success(data)
 
-    img_bytes = img_file_buffer.getvalue()
 
-    ### Make request to  API (stream=True to stream response as bytes)
+def handle_input_required(data):
+    st.warning(data["message"])
+    x_ticks = st.text_input(
+        "Enter the first two **X ticks** (left to right, comma-separated):"
+    )
+    y_ticks = st.text_input(
+        "Enter the first two **Y ticks** (bottom to top, comma-separated):"
+    )
+    if st.button("Submit Tick Values"):
+        process_ticks(x_ticks, y_ticks, data)
 
+
+def process_ticks(x_ticks, y_ticks, data):
+    tick_data = {
+        "x_ticks": x_ticks.split(","),
+        "y_ticks": y_ticks.split(","),
+        "yolo_data": data["yolo"],
+        "title": data["title"],
+        "x_label": data["x_label"],
+        "y_label": data["y_label"],
+    }
+    tick_res = request_tick_data(API_URL, tick_data)
+    if tick_res.status_code == 200:
+        handle_success(tick_res.json())
+
+
+def handle_success(data):
+    df = pd.DataFrame(
+        [
+            {"x_values": x, "y_values": y, "Marker": d["marc"]}
+            for d in data["prediction"]["data_dicts"]
+            for x, y in zip(d["x_values"], d["y_values"])
+        ]
+    )
+    editable_title = st.text_input("Edit Plot Title", value=data["prediction"]["title"])
+    col1, col2 = st.columns(2)
     with col1:
-        ### Display the image user uploaded
-        st.image(
-            Image.open(img_file_buffer),
-            caption="Here's the image you uploaded ☝️",
+        editable_x_label = st.text_input(
+            "Edit X-Axis Label", value=data["prediction"]["x_label"]
+        )
+    with col2:
+        editable_y_label = st.text_input(
+            "Edit Y-Axis Label", value=data["prediction"]["y_label"]
+        )
+    col1, col2 = st.columns([1, 2])
+    with col1:
+        edited_df = st.data_editor(df, num_rows="dynamic")
+    with col2:
+        generate_plot(edited_df, editable_title, editable_x_label, editable_y_label)
+    if st.button("Prepare JSON Download"):
+        generate_json(edited_df, editable_title, editable_x_label, editable_y_label)
+    if "download_json" in st.session_state:
+        st.toast("Download is Ready 🚀")
+        st.download_button(
+            label="Download as JSON",
+            data=st.session_state["download_json"],
+            file_name="edited_data.json",
+            mime="application/json",
         )
 
-    with col2:
-        with st.spinner("Wait for it..."):
-            res = requests.post(API_URL + "/predict", files={"img": img_bytes})
-            ### Get bytes from the file buffer
-            if res.status_code == 200:
-                # Assuming 'res' is your response object
-                data_dicts = res.json()["prediction"]["data_dicts"]
-                plot_title = res.json()["prediction"]["title"]
-                x_label = res.json()["prediction"]["x_label"]
-                y_label = res.json()["prediction"]["y_label"]
-
-                # Transform data into a DataFrame
-                all_data = []
-                for data_dict in data_dicts:
-                    for x, y in zip(data_dict["x_values"], data_dict["y_values"]):
-                        all_data.append(
-                            {"x_values": x, "y_values": y, "Marker": data_dict["marc"]}
-                        )
-
-                df = pd.DataFrame(all_data)
-
-                # Allow users to edit title and labels
-                editable_title = st.text_input("Edit Plot Title", value=plot_title)
-                col1, col2 = st.columns(2)
-                with col1:
-                    editable_x_label = st.text_input("Edit X-Axis Label", value=x_label)
-                with col2:
-                    editable_y_label = st.text_input("Edit Y-Axis Label", value=y_label)
-
-                col1, col2 = st.columns([1, 2])
-                with col1:
-                    # Allow users to edit the DataFrame
-                    edited_df = st.data_editor(df, num_rows="dynamic")
-
-                with col2:
-                    # Create a scatter plot with edited values
-                    fig = px.scatter(
-                        edited_df,
-                        x="x_values",
-                        y="y_values",
-                        color="Marker",
-                        title=editable_title,
-                        labels={
-                            "x_values": editable_x_label,
-                            "y_values": editable_y_label,
-                        },
-                    )
-
-                    # Display the plot in Streamlit
-                    st.plotly_chart(fig, theme="streamlit", use_container_width=True)
-
-                # Function to generate JSON data
-                def generate_json():
-                    # Convert DataFrame to JSON string
-                    df_json = edited_df.to_json(orient="records")
-
-                    # Combine everything into a single dictionary
-                    output_json = {
-                        "title": editable_title,
-                        "x_label": editable_x_label,
-                        "y_label": editable_y_label,
-                        "data": json.loads(df_json),
-                    }
-
-                    # Store in session state
-                    st.session_state["download_json"] = json.dumps(
-                        output_json, indent=4
-                    )
-
-                # Button to prepare download
-                if st.button("Prepare JSON Download"):
-                    generate_json()
-
-                # Download button
-                if "download_json" in st.session_state:
-                    st.toast("Download is Ready 🎉")
-                    st.download_button(
-                        label="Download as JSON",
-                        data=st.session_state["download_json"],
-                        file_name="edited_data.json",
-                        mime="application/json",
-                    )
-
-            else:
-                st.warning("**Oops**, something went wrong 😓 Please try again.")
-                print(res.status_code, res.content)
 
 if __name__ == "__main__":
     main()

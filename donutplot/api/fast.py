@@ -1,11 +1,13 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Body
+from typing import List, Any
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import Response
 import cv2
 import numpy as np
 import os
 
-from donutplot.interface.predict import make_prediction
+from donutplot.interface.predict import make_prediction, make_prediction_manual
+from donutplot.ml_logic.merge import merge, merge_manual
 
 app = FastAPI()
 
@@ -40,6 +42,20 @@ async def receive_image(img: UploadFile = File(...)):
 
     # os.remove(filename) for file in os.listdir(image_directory) if file.endswith('.jpg')
 
-    return {
-        "prediction": response
-    }  # Response(content=im.tobytes(), media_type="image/jpg")
+    return response
+
+
+@app.post("/process_ticks")
+async def process_ticks(
+    x_ticks: List[str] = Body(...),
+    y_ticks: List[str] = Body(...),
+    yolo_data: Any = Body(...),  # Use 'Any' if the structure is not defined
+    title: str = Body(...),
+    x_label: str = Body(...),
+    y_label: str = Body(...),
+):
+    yolo_data = np.array(yolo_data).reshape(-1, 6)
+    data_dicts = merge_manual(yolo_data, x_ticks, y_ticks)
+    response = make_prediction_manual(data_dicts, title, x_label, y_label)
+
+    return response

@@ -63,7 +63,7 @@ def read_title(image):
     x = 0
     y = 0
     w = width
-    h = round(height * 0.10)
+    h = round(height * 0.07)
 
     img_mrz = image[y : y + h, x : x + w]
     img_mrz = cv2.GaussianBlur(img_mrz, (3, 3), 0)
@@ -80,7 +80,7 @@ def read_x_axis_label(image):
 
     (height, width) = image.shape
     w = width
-    h = round(height * 0.15)
+    h = round(height * 0.08)
     x = 0
     y = height - h
 
@@ -100,7 +100,7 @@ def read_y_axis_label(image):
     image = preprocess_image(image)
 
     (height, width) = image.shape
-    w = round(width * 0.10)
+    w = round(width * 0.05)
     h = height
     x = 0
     y = 0
@@ -118,7 +118,7 @@ def read_y_axis_label(image):
     return text
 
 
-def read_ticks(image, digits_only=1, confidence=75, crop=1):
+def read_ticks(image, digits_only=1, confidence=90, crop=1):
     image = preprocess_image(image)
     margin = (1 - crop) / 4
     xmargin = int(margin * image.shape[0])
@@ -133,12 +133,7 @@ def read_ticks(image, digits_only=1, confidence=75, crop=1):
         mode="constant",
         constant_values=255,
     )
-    # import matplotlib.pyplot as plt
 
-    # plt.close()
-    # plt.imshow(image)
-    # plt.show()
-    # plt.close()
     options = ""
     if digits_only:
         options = "--psm 6 --oem 3 outputbase digits"
