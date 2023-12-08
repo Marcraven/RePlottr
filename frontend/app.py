@@ -13,9 +13,9 @@ st.title("RePlottr 📈")
 st.subheader("Making data extraction from scatterplots easy")
 
 # Production API URL
-# API_URL = "https://donutplot-uz3lg33nzq-no.a.run.app"
+API_URL = "https://donutplot-uz3lg33nzq-no.a.run.app"
 # Fallback API URL (for testing purposes)
-API_URL = "http://127.0.0.1:8000"
+# API_URL = "http://127.0.0.1:8000"
 
 # File uploader
 img_file_buffer = st.file_uploader("Upload an image to get started")
