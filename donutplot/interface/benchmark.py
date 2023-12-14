@@ -98,7 +98,7 @@ finally:
 
     print(
         f"""
-        Number of images use for the benchmark:{len(gt)}
+        Number of images use for the benchmark:{i}
         Failed: {failed_fraction}%
         Figure size = {FIGSIZE_WIDTH_TRAINING_MODE} x {FIGSIZE_HEIGHT_TRAINING_MODE} inches
         Resolution = {DPI_TRAINING_MODE} DPI
