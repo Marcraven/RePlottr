@@ -30,9 +30,9 @@ START_INDEX = 0
 
 ##### Paths #####
 DATA_PATH = os.path.expanduser("~/.donutplot/data/")
-TRAIN_PATH = os.path.join(DATA_PATH, "train")
-VALIDATE_PATH = os.path.join(DATA_PATH, "validation")
-TEST_PATH = os.path.join(DATA_PATH, "test")
+TRAIN_PATH = os.path.join(DATA_PATH, "train/")
+VALIDATE_PATH = os.path.join(DATA_PATH, "validation/")
+TEST_PATH = os.path.join(DATA_PATH, "test/")
 
 BEST_PT_PATH = os.path.expanduser("~/.donutplot/weights/")
 os.makedirs(BEST_PT_PATH, exist_ok=True)
