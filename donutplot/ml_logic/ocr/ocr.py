@@ -4,6 +4,8 @@ import numpy as np
 import re
 from pytesseract import Output
 import keras as tf
+import tensorflow as tf
+from doctr.models import crnn_vgg16_bn
 
 # from doctr.models import crnn_vgg16_bn
 

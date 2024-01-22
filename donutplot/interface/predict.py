@@ -7,6 +7,8 @@ from donutplot.ml_logic.ocr.ocr import (
 )
 from donutplot.ml_logic.merge import merge
 
+
+
 model = YoloModel()
 
 
