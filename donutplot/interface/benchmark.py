@@ -41,6 +41,7 @@ error_list = np.ndarray(len(gt))
 
 for i in range(len(gt)):
     result = make_prediction(TEST_PATH + str(i).zfill(4) + ".jpg")
+    breakpoint()
     result_df = series_to_df(result["data_dicts"])
     gt_df = series_to_df(gt[i]["ground_truth"]["data_dicts"])
 

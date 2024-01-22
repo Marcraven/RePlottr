@@ -3,6 +3,13 @@ import cv2
 import numpy as np
 import re
 from pytesseract import Output
+import keras as tf
+
+# from doctr.models import crnn_vgg16_bn
+
+# model = crnn_vgg16_bn(pretrained=True)
+# input_tensor = tf.random.uniform(shape=[1, 32, 128, 3], maxval=1, dtype=tf.float32)
+# out = model(input_tensor)
 
 
 def preprocess_image(image):
