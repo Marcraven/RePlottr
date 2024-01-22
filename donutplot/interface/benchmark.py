@@ -40,10 +40,10 @@ failed_ones = 0
 try:
     for i in range(len(gt)):
         result = make_prediction(os.path.join(TEST_PATH, str(i).zfill(4) + ".jpg"))
-        if result == "failed":
+        if result["status"] != "success":
             failed_ones += 1
         else:
-            result_df = series_to_df(result["data_dicts"])
+            result_df = series_to_df(result["prediction"]["data_dicts"])
             gt_df = series_to_df(gt[i]["ground_truth"]["data_dicts"])
 
             neigh = NearestNeighbors(n_neighbors=1)

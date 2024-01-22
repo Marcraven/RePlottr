@@ -17,33 +17,33 @@ def make_prediction(image):
     x_ticks_values = []
     y_ticks_values = []
 
-    for i, box in enumerate(yolo_xticks):
-        x_ticks_values.append(read_ticks(box))
-        conf = round(float(yolo_data[yolo_data[:, 0] == 0, :][i, 1]), 2)
-
-    for j, box in enumerate(yolo_yticks):
-        y_ticks_values.append(read_ticks(box))
-        conf = round(float(yolo_data[yolo_data[:, 0] == 1, :][j, 1]), 2)
-
-    nxticks = len([item for item in x_ticks_values if item != ""])
-
-    nyticks = len([item for item in y_ticks_values if item != ""])
-
-    if (nxticks < 2) or (nyticks < 2):
-        return "failed"
-    data_dicts = merge(yolo_data, x_ticks_values, y_ticks_values)
-
     title = read_title(image)
     x_label = read_x_axis_label(image)
     y_label = read_y_axis_label(image)
 
-    # File path for the JSONL file
-    # file_path = './api/temp/'' + "metadata.json"
+    for i, box in enumerate(yolo_xticks):
+        x_ticks_values.append(read_ticks(box))
+        # conf = round(float(yolo_data[yolo_data[:, 0] == 0, :][i, 1]), 2)
 
-    # Writing data to the JSONL file
-    # with open(file_path, "w") as file:
-    #     json.dump(output, file_path, default=str)  # Use str() for non-serializable objects
-    #     file.write("\n")  # Add a newline character to separate JSON objects
+    for j, box in enumerate(yolo_yticks):
+        y_ticks_values.append(read_ticks(box))
+        # conf = round(float(yolo_data[yolo_data[:, 0] == 1, :][j, 1]), 2)
+
+    if (
+        len([item for item in x_ticks_values if item != ""]) < 2
+        or len([item for item in y_ticks_values if item != ""]) < 2
+    ):
+        yolo_data = yolo_data.reshape(1, -1).tolist()
+        return {
+            "status": "input_required",
+            "message": "Unable to Read X and y Ticks. Please provide two X and two y ticks.",
+            "yolo": yolo_data,
+            "title": title,
+            "x_label": x_label,
+            "y_label": y_label,
+        }
+    else:
+        data_dicts = merge(yolo_data, x_ticks_values, y_ticks_values)
 
     response = {
         "title": title,
@@ -52,7 +52,23 @@ def make_prediction(image):
         "data_dicts": data_dicts,
     }
 
-    return response
+    return {"status": "success", "prediction": response}
+
+
+def make_prediction_manual(data_dicts, title, x_label, y_label):
+    data_dicts = data_dicts
+    title = title
+    x_label = x_label
+    y_label = y_label
+
+    response = {
+        "title": title,
+        "x_label": x_label,
+        "y_label": y_label,
+        "data_dicts": data_dicts,
+    }
+
+    return {"status": "success", "prediction": response}
 
 
 if __name__ == "__main__":
