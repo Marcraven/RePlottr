@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import json
 
-file_path = TEST_PATH + "metadata.jsonl"
+file_path = os.path.join(TEST_PATH, "metadata.jsonl")
 
 # Open the JSONL file for reading
 gt = []
@@ -23,8 +23,6 @@ with open(file_path, "r") as file:
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
 
-# benchmarking evaluation
-
 
 def series_to_df(series):
     df = pd.DataFrame()
@@ -34,55 +32,79 @@ def series_to_df(series):
     return df
 
 
-precision_list = np.ndarray(len(gt))
-recall_list = np.ndarray(len(gt))
-error_list = np.ndarray(len(gt))
+precision_list = []
+recall_list = []
+error_list = []
 
+failed_ones = 0
+try:
+    for i in range(len(gt)):
+        result = make_prediction(os.path.join(TEST_PATH, str(i).zfill(4) + ".jpg"))
+        if result == "failed":
+            failed_ones += 1
+        else:
+            result_df = series_to_df(result["data_dicts"])
+            gt_df = series_to_df(gt[i]["ground_truth"]["data_dicts"])
 
-for i in range(len(gt)):
-    result = make_prediction(TEST_PATH + str(i).zfill(4) + ".jpg")
-    breakpoint()
-    result_df = series_to_df(result["data_dicts"])
-    gt_df = series_to_df(gt[i]["ground_truth"]["data_dicts"])
+            neigh = NearestNeighbors(n_neighbors=1)
+            scaler = MinMaxScaler()
 
-    neigh = NearestNeighbors(n_neighbors=1)
-    scaler = MinMaxScaler()
+            gt_df.iloc[:, 1:] = scaler.fit_transform(X=gt_df.iloc[:, 1:])
 
-    gt_df.iloc[:, 1:] = scaler.fit_transform(X=gt_df.iloc[:, 1:])
+            result_df.iloc[:, 1:] = scaler.transform(result_df.iloc[:, 1:])
 
-    result_df.iloc[:, 1:] = scaler.transform(result_df.iloc[:, 1:])
+            neigh.fit(gt_df.iloc[:, 1:])
 
-    neigh.fit(gt_df.iloc[:, 1:])
+            distances, indices = neigh.kneighbors(
+                result_df.iloc[:, 1:], 1, return_distance=True
+            )
 
-    distances, indices = neigh.kneighbors(
-        result_df.iloc[:, 1:], 1, return_distance=True
+            knnd_result = pd.concat(
+                [
+                    result_df,
+                    pd.Series(indices.flatten()),
+                    pd.Series(distances.flatten()),
+                ],
+                axis=1,
+            ).sort_values(by=0)
+
+            original_points = gt_df.shape[0]
+            true_positives = len(knnd_result.iloc[:, 3].unique())
+            false_positives = len(knnd_result.iloc[:, 3]) - true_positives
+
+            correctly_assigned = np.array(knnd_result.iloc[:, 0]) == np.array(
+                gt_df.iloc[knnd_result.iloc[:, 3], 0]
+            )
+
+            precision = round(
+                sum(correctly_assigned) * 100 / len(correctly_assigned), 2
+            )
+            recall = round(true_positives * 100 / original_points, 2)
+            error = round(np.mean(distances) * 100, 2)
+            if error < np.e:
+                precision_list.append(precision)
+                recall_list.append(recall)
+                error_list.append(error)
+                print(f"Image {i+1} of {len(gt)}")
+            else:
+                failed_ones += 1
+finally:
+    failed_fraction = failed_ones * 100 / i
+    precision_mean = sum(precision_list) / len(precision_list)
+    recall_mean = sum(recall_list) / len(recall_list)
+    error_mean = np.mean(np.array(error_list))
+    error_max = np.max(np.array(error_list))
+    error_median = np.median(np.array(error_list))
+
+    print(
+        f"""
+        Number of images use for the benchmark:{i}
+        Failed: {failed_fraction}%
+        Figure size = {FIGSIZE_WIDTH_TRAINING_MODE} x {FIGSIZE_HEIGHT_TRAINING_MODE} inches
+        Resolution = {DPI_TRAINING_MODE} DPI
+        Mean precision = {precision_mean}%
+        Mean recall = {recall_mean}%
+        Mean spatial error is {error_mean}%
+        Max spatial error is {error_max}%
+        Median spatial error is {error_median}%"""
     )
-
-    knnd_result = pd.concat(
-        [result_df, pd.Series(indices.flatten()), pd.Series(distances.flatten())],
-        axis=1,
-    ).sort_values(by=0)
-
-    original_points = gt_df.shape[0]
-    true_positives = len(knnd_result.iloc[:, 3].unique())
-    false_positives = len(knnd_result.iloc[:, 3]) - true_positives
-
-    correctly_assigned = np.array(knnd_result.iloc[:, 0]) == np.array(
-        gt_df.iloc[knnd_result.iloc[:, 3], 0]
-    )
-
-    precision = round(sum(correctly_assigned) * 100 / len(correctly_assigned), 2)
-    recall = round(true_positives * 100 / original_points, 2)
-    error = round(np.mean(distances) * 100, 2)
-
-    precision_list[i] = precision
-    recall_list[i] = recall
-    error_list[i] = error
-
-precision_mean = np.mean(precision_list)
-recall_mean = np.mean(recall_list)
-error_mean = np.mean(error_list)
-
-print(
-    f"Number of images use for the benchmark:{len(gt)} \nMean precision = {precision_mean}% \nMean recall = {recall_mean}% \nMean spatial error is {error_mean}%"
-)
